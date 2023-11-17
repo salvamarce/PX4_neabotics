@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Concrete with tool on front SITL -->
+
+    <include file="$(find px4)/launch/posix_sitl.launch">
+        <arg name="vehicle" value="concrete_tool_front"/>
+        <arg name="world" value="$(find mavlink_sitl_gazebo)/worlds/interaction.world"/>
+    </include>
+
+</launch>
