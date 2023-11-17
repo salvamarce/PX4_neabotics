@@ -108,6 +108,9 @@ if(gazebo_FOUND)
 		NDT_tilting
 		tilting_quadrotor
 		baby_k
+		concrete
+		concrete_tool_front
+		concrete_tool_top
 	)
 
 	set(worlds
@@ -121,6 +124,7 @@ if(gazebo_FOUND)
 		warehouse
 		windy
 		yosemite
+		interaction
 	)
 
 	# find corresponding airframes
