@@ -230,8 +230,9 @@ set(msg_files
 	YawEstimatorStatus.msg
 
 	#*** CUSTOM
-	tilting_mc_desired_angles.msg
-	tilting_servo_sp.msg
+	TiltingMcDesiredAngles.msg
+	TiltingServoSp.msg
+	LamaState.msg
 	ConcreteToolData.msg
 	#*** END-CUSTOM
 
