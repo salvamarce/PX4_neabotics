@@ -284,9 +284,10 @@ MulticopterAttitudeControl::Run()
 
 		const Quatf q{v_att.q};
 
-		// *** CUSTOM ***
+
 		_vehicle_control_mode_sub.update(&_vehicle_control_mode);
 
+		// Check for new attitude setpoint
 		if (_vehicle_attitude_setpoint_sub.updated()) {
 			vehicle_attitude_setpoint_s vehicle_attitude_setpoint;
 
@@ -300,43 +301,9 @@ MulticopterAttitudeControl::Run()
 			}
 		}
 
-		if (_vehicle_control_mode.flag_control_lama_enabled &&
-		    !_vehicle_control_mode.flag_control_manual_enabled){
 
-			if(_concrete_tool_data_sub.updated()){
-				concrete_tool_data_s tool_data;
 
-				if (_concrete_tool_data_sub.copy(&tool_data)
-			    	    && (tool_data.timestamp > _last_concrete_data)) {
 
-					float left_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
-							   tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT]);
-
-					float right_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_RIGHT] +
-							   tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
-
-					float bottom_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT] +
-							   tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
-
-					float top_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
-							   tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
-
-					float yaw_lama_sp = atan2(left_mean-right_mean,_concrete_tool_y_dist);
-					float pitch_lama_sp = atan2(bottom_mean-top_mean, _concrete_tool_z_dist);
-
-					Quatf q_lama_sp = Quatf(Eulerf(0.0f, pitch_lama_sp, yaw_lama_sp));
-
-					// To do: aggiungere yaw rate sp
-					_attitude_control.setAttitudeSetpoint(Quatf(_last_attitude_setpoint.q_d) * q_lama_sp, 0.0f);
-
-				}
-			}
-		}
-
-		// *** END-CUSTOM ***
-
-		// Check for new attitude setpoint
-		else
 
 		// Check for a heading reset
 		if (_quat_reset_counter != v_att.quat_reset_counter) {
@@ -395,6 +362,43 @@ MulticopterAttitudeControl::Run()
 		const bool is_tailsitter_transition = (_vtol_tailsitter && _vtol_in_transition_mode);
 
 		bool run_att_ctrl = _vehicle_control_mode.flag_control_attitude_enabled && (is_hovering || is_tailsitter_transition);
+
+		// *** CUSTOM ***
+		if (_vehicle_control_mode.flag_control_lama_enabled &&
+		    !_vehicle_control_mode.flag_control_manual_enabled){
+
+			if(_concrete_tool_data_sub.updated()){
+				concrete_tool_data_s tool_data;
+
+				if (_concrete_tool_data_sub.copy(&tool_data)
+			    	    && (tool_data.timestamp > _last_concrete_data_time)) {
+
+					float left_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
+							   tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT]);
+
+					float right_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_RIGHT] +
+							   tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+
+					float bottom_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT] +
+							   tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+
+					float top_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
+							   tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
+
+					float yaw_lama_sp = atan2(left_mean-right_mean,_concrete_tool_y_dist);
+					float pitch_lama_sp = atan2(bottom_mean-top_mean, _concrete_tool_z_dist);
+
+					Quatf q_lama_sp = Quatf(Eulerf(0.0f, pitch_lama_sp, yaw_lama_sp));
+
+					// To do: aggiungere yaw rate sp
+					_attitude_control.setAttitudeSetpoint(Quatf(_last_attitude_setpoint.q_d) * q_lama_sp, 0.0f);
+
+					_last_concrete_data_time = tool_data.timestamp;
+
+				}
+			}
+		}
+		// *** END-CUSTOM ***
 
 		if (run_att_ctrl) {
 
