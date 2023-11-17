@@ -60,6 +60,8 @@
 /*** CUSTOM ***/
 #include <uORB/topics/tilting_mc_desired_angles.h>
 #include <uORB/topics/tilting_servo_sp.h>
+#include <uORB/topics/lama_state.h>
+#include <uORB/topics/concrete_tool_data.h>
 /*** END-CUSTOM ***/
 
 
@@ -133,7 +135,7 @@ private:
 	AlphaFilter<float> _man_pitch_input_filter;
 
 	hrt_abstime _last_run{0};
-	hrt_abstime _last_attitude_setpoint{0};
+	hrt_abstime _last_attitude_setpoint_time{0}; // CUSTOM
 
 	bool _spooled_up{false}; ///< used to make sure the vehicle cannot take off during the spoolup time
 	bool _landed{true};
@@ -149,9 +151,17 @@ private:
 	/*** CUSTOM ***/
 	uORB::Publication<tilting_servo_sp_s>	_tilting_servo_pub{ORB_ID(tilting_servo_setpoint)};
 	uORB::Subscription _tilting_servo_sub{ORB_ID(tilting_servo_setpoint)};
+	uORB::Subscription _lama_state_sub{ORB_ID(lama_state)};
+	uORB::Subscription _concrete_tool_data_sub{ORB_ID(concrete_tool_data)};
+
 	AlphaFilter<float> _man_Fx_input_filter;
 	AlphaFilter<float> _man_Fy_input_filter;
 	float _man_F_max;
+	float _concrete_tool_y_dist;
+	float _concrete_tool_z_dist;
+
+	hrt_abstime _last_concrete_data{0};
+	vehicle_attitude_setpoint_s _last_attitude_setpoint;
 
 	/*** END-CUSTOM ***/
 
@@ -181,11 +191,12 @@ private:
 
 		/*** CUSTOM ***/
 
-		(ParamInt<px4::params::MC_PITCH_ON_TILT>)   _param_mpc_pitch_on_tilt,   /**< map the pitch angle on the tilt */
-		(ParamInt<px4::params::CA_TILTING_TYPE>)    _param_tilting_type,	/**< 0: H-tilt, 1: omnidirectional */
-		(ParamInt<px4::params::CA_AIRFRAME>)	    _param_airframe,		/**< 11: tilting multirotor */
-		(ParamFloat<px4::params::MC_MAX_FXY>)       _param_f_max		/**< maximum horizontal force for omni drones*/
-
+		(ParamInt<px4::params::MC_PITCH_ON_TILT>)      _param_mpc_pitch_on_tilt,   /**< map the pitch angle on the tilt */
+		(ParamInt<px4::params::CA_TILTING_TYPE>)       _param_tilting_type,	/**< 0: H-tilt, 1: omnidirectional */
+		(ParamInt<px4::params::CA_AIRFRAME>)	       _param_airframe,		/**< 11: tilting multirotor */
+		(ParamFloat<px4::params::MC_MAX_FXY>)          _param_f_max,		/**< maximum horizontal force for omni drones*/
+		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>) _param_concrete_tool_y_dist,
+		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) _param_concrete_tool_z_dist
 		/*** END-CUSTOM ***/
 
 	)

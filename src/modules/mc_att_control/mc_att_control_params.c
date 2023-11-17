@@ -167,7 +167,7 @@ PARAM_DEFINE_FLOAT(MC_MAN_TILT_TAU, 0.0f);
  * Setting this parameter to 0 for standard multicopters
  *
  * @boolean
- * @group Multicopter Attitude Control
+ * @group Tilting Multicopter
  */
 PARAM_DEFINE_INT32(MC_PITCH_ON_TILT, 0);
 
@@ -178,9 +178,30 @@ PARAM_DEFINE_INT32(MC_PITCH_ON_TILT, 0);
  * @min 0.0
  * @max 5.0
  * @decimal 2
- * @group Multicopter Attitude Control
+ * @group Tilting Multicopter
 */
 PARAM_DEFINE_FLOAT(MC_MAX_FXY, 0.15f);
 
+/**
+ * Distance between ToFs of the concrete tool along Y-axis tool frame
+ *
+ * @unit m
+ * @min 0.0
+ * @max 5.0
+ * @decimal 2
+ * @group LAMA
+*/
+PARAM_DEFINE_FLOAT(CONC_TOOL_Y_DIST, 0.3f);
+
+/**
+ * Distance between ToFs of the concrete tool along Z-axis tool frame
+ *
+ * @unit m
+ * @min 0.0
+ * @max 5.0
+ * @decimal 2
+ * @group LAMA
+*/
+PARAM_DEFINE_FLOAT(CONC_TOOL_Z_DIST, 1.0f);
 
 // *** END-CUSTOM ***
