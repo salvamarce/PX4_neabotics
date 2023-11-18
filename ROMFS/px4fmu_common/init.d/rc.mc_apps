@@ -79,3 +79,12 @@ mc_pos_control start
 # Start Multicopter Land Detector.
 #
 land_detector start multicopter
+
+
+#*** CUSTOM **#
+#
+# Start mbedi2c driver
+if param compare CONC_EN_MBED 1
+then
+mbedi2c start -X -b 4 -a 0x25
+fi
