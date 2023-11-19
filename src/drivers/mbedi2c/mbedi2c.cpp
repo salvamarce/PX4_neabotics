@@ -25,8 +25,6 @@
 #include <uORB/topics/concrete_tool_data.h>
 
 
-#define MBED_BASEADDR	0x25
-
 #define CELL_V_DIST		1.0		// [m]
 #define CELL_H_DIST		0.5		// [m]
 
@@ -39,7 +37,6 @@ typedef struct{
     int16_t ty;
     int16_t tz;
 } SensorData;
-
 
 
 
@@ -267,7 +264,7 @@ extern "C" __EXPORT int mbedi2c_main(int argc, char *argv[])
 	using ThisDriver = MbedI2C;
 	BusCLIArguments cli{true, false};
 	cli.default_i2c_frequency = 100000;
-	cli.i2c_address = MBED_BASEADDR;
+	param_get(param_find("MBED_BASEADDR"), &cli.i2c_address);
 
 	int ch;
 	while ((ch = cli.getOpt(argc, argv, "R:")) != EOF) {

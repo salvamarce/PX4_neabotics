@@ -36,4 +36,6 @@ px4_add_module(
 	COMPILE_FLAGS
 	SRCS
 		mbedi2c.cpp
+	MODULE_CONFIG
+		module.yaml
 	)
