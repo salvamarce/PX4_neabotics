@@ -284,23 +284,6 @@ MulticopterAttitudeControl::Run()
 
 		const Quatf q{v_att.q};
 
-
-		_vehicle_control_mode_sub.update(&_vehicle_control_mode);
-
-		// Check for new attitude setpoint
-		if (_vehicle_attitude_setpoint_sub.updated()) {
-			vehicle_attitude_setpoint_s vehicle_attitude_setpoint;
-
-			if (_vehicle_attitude_setpoint_sub.copy(&vehicle_attitude_setpoint)
-			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint_time)) {
-
-				_last_attitude_setpoint_time = vehicle_attitude_setpoint.timestamp;
-				_last_attitude_setpoint = vehicle_attitude_setpoint;
-				_attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate);
-				_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
-			}
-		}
-
 		// Check for a heading reset
 		if (_quat_reset_counter != v_att.quat_reset_counter) {
 			const Quatf delta_q_reset(v_att.delta_q_reset);
@@ -318,7 +301,21 @@ MulticopterAttitudeControl::Run()
 
 		/* check for updates in other topics */
 		_manual_control_setpoint_sub.update(&_manual_control_setpoint);
-		//_vehicle_control_mode_sub.update(&_vehicle_control_mode);
+		_vehicle_control_mode_sub.update(&_vehicle_control_mode);
+
+		// Check for new attitude setpoint
+		if (_vehicle_attitude_setpoint_sub.updated()) {
+			vehicle_attitude_setpoint_s vehicle_attitude_setpoint;
+
+			if (_vehicle_attitude_setpoint_sub.copy(&vehicle_attitude_setpoint)
+			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint_time)) {
+
+				_last_attitude_setpoint_time = vehicle_attitude_setpoint.timestamp;
+				_last_attitude_setpoint = vehicle_attitude_setpoint;
+				// _attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate);
+				_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
+			}
+		}
 
 		if (_vehicle_status_sub.updated()) {
 			vehicle_status_s vehicle_status;
@@ -382,31 +379,25 @@ MulticopterAttitudeControl::Run()
 					float top_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
 							   tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
 
-					Eulerf standard_eul(Quatf(_last_attitude_setpoint.q_d));
-
-
-					float yaw_lama_sp = wrap_pi(standard_eul.psi() + atan2(left_mean-right_mean,_concrete_tool_y_dist));
-					float pitch_lama_sp = standard_eul.theta() + atan2(bottom_mean-top_mean, _concrete_tool_z_dist);
-
-					Quatf q_lama_sp = Quatf(Eulerf(standard_eul.phi(), pitch_lama_sp, yaw_lama_sp));
-
-					// To do: aggiungere yaw rate sp
-					_last_attitude_setpoint.roll_body = standard_eul.phi();
-					_last_attitude_setpoint.pitch_body = pitch_lama_sp;
-					_last_attitude_setpoint.yaw_body = yaw_lama_sp;
-					_last_attitude_setpoint.timestamp = hrt_absolute_time();
-					_vehicle_attitude_setpoint_pub.publish(_last_attitude_setpoint);
-
-					_attitude_control.setAttitudeSetpoint(q_lama_sp, 0.0f);
-					PX4_INFO("Lm Rm Bm Tm: \t %3.3f \t %3.3f \t %3.3f \t %3.3f", (double)left_mean, (double)right_mean,
-					(double)bottom_mean, (double)top_mean);
-					PX4_INFO("New setpoint: %f %f", (double)pitch_lama_sp, (double)yaw_lama_sp);
+					_yaw_lama_sp = atan2(left_mean-right_mean,_concrete_tool_y_dist);
+					_pitch_lama_sp = atan2(bottom_mean-top_mean, _concrete_tool_z_dist);
 
 					_last_concrete_data_time = tool_data.timestamp;
 
 				}
 			}
 		}
+		Quatf q_sp = Quatf(_last_attitude_setpoint.q_d) * Quatf(Eulerf(0.0f, _pitch_lama_sp, _yaw_lama_sp));
+		_attitude_control.setAttitudeSetpoint(q_sp, _last_attitude_setpoint.yaw_sp_move_rate);
+
+		// To do: aggiungere yaw rate sp
+		Eulerf eul_sp_log(q_sp);
+		_last_attitude_setpoint.roll_body = eul_sp_log.phi();
+		_last_attitude_setpoint.pitch_body = eul_sp_log.theta();
+		_last_attitude_setpoint.yaw_body = eul_sp_log.psi();
+		_last_attitude_setpoint.timestamp = hrt_absolute_time();
+		_vehicle_attitude_setpoint_pub.publish(_last_attitude_setpoint);
+
 		// *** END-CUSTOM ***
 
 		if (run_att_ctrl) {

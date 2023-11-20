@@ -162,6 +162,7 @@ private:
 
 	hrt_abstime _last_concrete_data_time{0};
 	vehicle_attitude_setpoint_s _last_attitude_setpoint;
+	float _yaw_lama_sp, _pitch_lama_sp;
 
 	/*** END-CUSTOM ***/
 
