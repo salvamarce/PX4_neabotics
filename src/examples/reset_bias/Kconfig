@@ -2,4 +2,4 @@ menuconfig EXAMPLES_RESET_BIAS
 	bool "reset_bias"
 	default n
 	---help---
-		Publish message to reset load cell bias
+		Enable support for myapp

@@ -2,4 +2,4 @@ menuconfig DRIVERS_MBEDI2C
 	bool "mbedi2c"
 	default n
 	---help---
-		Enable support for i2c communication with mbed
+		Enable support for pwm_out

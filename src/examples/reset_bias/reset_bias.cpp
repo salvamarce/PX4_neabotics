@@ -1,9 +1,15 @@
+/**
+ * @file reset_bias.cpp
+ * Minimal application example for PX4 autopilot
+ *
+ * @author Example User <mail@example.com>
+ */
+
 #include <uORB/uORB.h>
 #include <uORB/Publication.hpp>
 #include <uORB/topics/ft_reset_bias_request.h>
 
 extern "C" __EXPORT int reset_bias_main(int argc, char *argv[]);
-
 
 int reset_bias_main(int argc, char *argv[]){
 	PX4_INFO("Reset bias test");

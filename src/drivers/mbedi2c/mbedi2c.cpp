@@ -19,14 +19,19 @@
 #include <lib/perf/perf_counter.h>
 #include <drivers/drv_hrt.h>
 
+#include <px4_platform_common/module_params.h>
+#include <uORB/topics/parameter_update.h>
+
 #include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
+#include <uORB/SubscriptionInterval.hpp>
 #include <uORB/topics/ft_reset_bias_request.h>
 #include <uORB/topics/concrete_tool_data.h>
 
 
+// Merge: remove this
 #define CELL_V_DIST		1.0		// [m]
-#define CELL_H_DIST		0.5		// [m]
+#define CELL_H_DIST		0.25	// [m]
 
 
 using namespace time_literals;
@@ -39,8 +44,7 @@ typedef struct{
 } SensorData;
 
 
-
-class MbedI2C : public device::I2C, public I2CSPIDriver<MbedI2C>
+class MbedI2C : public device::I2C, public I2CSPIDriver<MbedI2C>, public ModuleParams
 {
 public:
 	MbedI2C(const I2CSPIDriverConfig &config);
@@ -73,6 +77,7 @@ private:
 	int configure();
 	int collect();
 
+	void parameters_update();
 
 
 private:
@@ -92,6 +97,16 @@ private:
 	int _conversion_interval{-1};	// us		200hz -> 5ms -> 5000us .. ??
 
 	bool _first = true;
+
+	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
+
+	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::MBEDI2C_SLV_ADDR>) 		_param_mbed_base_addr,
+		// Merge: enable this
+		//(ParamFloat<px4::params::CONC_TOOL_Y_DIST>)		_param_tool_y_dist,
+		//(ParamFloat<px4::params::CONC_TOOL_Z_DIST>)		_param_tool_z_dist
+	)
+
 };
    
 
@@ -185,8 +200,12 @@ int MbedI2C::collect(){
 	tooldata_msg.force[0] = sensorData.fx * 0.001 * 9.81;		// from [g] to [N]
 	tooldata_msg.force[1] = ftdata.force[2] = 0;
 	tooldata_msg.torque[0] = 0;
-	tooldata_msg.torque[1] = sensorData.ty * 0.001 * 9.81 * 0.5 * CELL_V_DIST;		// from [g] to [Nm]
+
+	// Merge: substitute these
+	tooldata_msg.torque[1] = sensorData.ty * 0.001 * 9.81 * 0.5 * CELL_V_DIST;	// from [g] to [Nm]
 	tooldata_msg.torque[2] = sensorData.tz * 0.001 * 9.81 * 0.5 * CELL_H_DIST;	// from [g] to [Nm]
+	//tooldata_msg.torque[1] = sensorData.ty * 0.001 * 9.81 * 0.5 * _param_tool_z_dist.get();	// from [g] to [Nm]
+	//tooldata_msg.torque[2] = sensorData.tz * 0.001 * 9.81 * 0.5 * _param_tool_y_dist.get();	// from [g] to [Nm]
     
 	for(int i=0; i<4; ++i)
 		tooldata_msg.distance[i] = 0.001f * sensorData.distances[i];		// from [m] to [mm]
@@ -239,6 +258,20 @@ void MbedI2C::RunImpl(){
 }
 
 
+void MbedI2C::parameters_update()
+{
+	if (_parameter_update_sub.updated()) {
+		parameter_update_s param_update;
+		_parameter_update_sub.copy(&param_update);
+
+		// If any parameter updated, call updateParams() to check if
+		// this class attributes need updating (and do so).
+		updateParams();
+	}
+}
+
+
+
 void MbedI2C::print_status(){
 	I2CSPIDriverBase::print_status();
 	perf_print_counter(_comms_errors);
@@ -264,7 +297,7 @@ extern "C" __EXPORT int mbedi2c_main(int argc, char *argv[])
 	using ThisDriver = MbedI2C;
 	BusCLIArguments cli{true, false};
 	cli.default_i2c_frequency = 100000;
-	param_get(param_find("MBED_BASEADDR"), &cli.i2c_address);
+	cli.i2c_address = _param_mbed_base_addr.get();
 
 	int ch;
 	while ((ch = cli.getOpt(argc, argv, "R:")) != EOF) {
