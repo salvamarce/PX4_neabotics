@@ -100,19 +100,18 @@ private:
 
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 
-	DEFINE_PARAMETERS(
-		(ParamInt<px4::params::MBEDI2C_SLV_ADDR>) 		_param_mbed_base_addr,
-		// Merge: enable this
-		//(ParamFloat<px4::params::CONC_TOOL_Y_DIST>)		_param_tool_y_dist,
-		//(ParamFloat<px4::params::CONC_TOOL_Z_DIST>)		_param_tool_z_dist
-	)
+	// Merge: enable this
+	/*DEFINE_PARAMETERS(
+		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>)		_param_tool_y_dist,
+		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>)		_param_tool_z_dist
+	)*/
 
 };
    
 
 MbedI2C::MbedI2C(const I2CSPIDriverConfig &config) :
-	I2C(config), I2CSPIDriver(config){
-        tooldata_msg.tool_pos = TOOL_FRONT;
+	I2C(config), I2CSPIDriver(config), ModuleParams(nullptr){
+        tooldata_msg.tool_pos = concrete_tool_data_s::TOOL_FRONT;
         for(int i=0; i<3; ++i){
             tooldata_msg.force[i] = 0;
             tooldata_msg.torque[i] = 0;
@@ -198,7 +197,7 @@ int MbedI2C::collect(){
     // publish data
     tooldata_msg.timestamp = timestamp_sample;
 	tooldata_msg.force[0] = sensorData.fx * 0.001 * 9.81;		// from [g] to [N]
-	tooldata_msg.force[1] = ftdata.force[2] = 0;
+	tooldata_msg.force[1] = tooldata_msg.force[2] = 0;
 	tooldata_msg.torque[0] = 0;
 
 	// Merge: substitute these
@@ -288,7 +287,7 @@ I2C bus driver for communication with mbed boards.
 	PRINT_MODULE_USAGE_NAME("mbedi2c", "driver");
 	PRINT_MODULE_USAGE_COMMAND("start");
 	PRINT_MODULE_USAGE_PARAMS_I2C_SPI_DRIVER(true, false);
-	PRINT_MODULE_USAGE_PARAMS_I2C_ADDRESS(MBED_BASEADDR);
+	PRINT_MODULE_USAGE_PARAMS_I2C_ADDRESS(0x25);
 	PRINT_MODULE_USAGE_DEFAULT_COMMANDS();
 }
 
@@ -297,7 +296,9 @@ extern "C" __EXPORT int mbedi2c_main(int argc, char *argv[])
 	using ThisDriver = MbedI2C;
 	BusCLIArguments cli{true, false};
 	cli.default_i2c_frequency = 100000;
-	cli.i2c_address = _param_mbed_base_addr.get();
+	int32_t addr = 0;
+	param_get(param_find("MBEDI2C_SLV_ADDR"), &addr);
+	cli.i2c_address = (uint8_t)addr;
 
 	int ch;
 	while ((ch = cli.getOpt(argc, argv, "R:")) != EOF) {

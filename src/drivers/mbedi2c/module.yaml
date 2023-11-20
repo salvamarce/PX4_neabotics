@@ -2,7 +2,14 @@ module_name: MbedI2C driver
 parameters:
     - group: mbedi2c
       definitions:
+          MBEDI2C_ENABLE:
+              description:
+                  short: Enable mbedi2c driver
+              type: boolean
+              default: true
+              reboot_required: true
           MBEDI2C_SLV_ADDR:
+              show_if: MBEDI2C_ENABLE
               description:
                   short: I2C address (7 bit) of mbedi2c slave (IN DECIMAL FORMAT)
                   long: |
