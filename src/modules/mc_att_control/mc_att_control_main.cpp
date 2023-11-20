@@ -301,10 +301,6 @@ MulticopterAttitudeControl::Run()
 			}
 		}
 
-
-
-
-
 		// Check for a heading reset
 		if (_quat_reset_counter != v_att.quat_reset_counter) {
 			const Quatf delta_q_reset(v_att.delta_q_reset);
@@ -364,8 +360,9 @@ MulticopterAttitudeControl::Run()
 		bool run_att_ctrl = _vehicle_control_mode.flag_control_attitude_enabled && (is_hovering || is_tailsitter_transition);
 
 		// *** CUSTOM ***
-		if (_vehicle_control_mode.flag_control_lama_enabled &&
-		    !_vehicle_control_mode.flag_control_manual_enabled){
+		if (true){
+			//!_vehicle_control_mode.flag_control_lama_enabled &&
+		    //!_vehicle_control_mode.flag_control_manual_enabled){
 
 			if(_concrete_tool_data_sub.updated()){
 				concrete_tool_data_s tool_data;
@@ -385,13 +382,25 @@ MulticopterAttitudeControl::Run()
 					float top_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
 							   tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
 
-					float yaw_lama_sp = atan2(left_mean-right_mean,_concrete_tool_y_dist);
-					float pitch_lama_sp = atan2(bottom_mean-top_mean, _concrete_tool_z_dist);
+					Eulerf standard_eul(Quatf(_last_attitude_setpoint.q_d));
 
-					Quatf q_lama_sp = Quatf(Eulerf(0.0f, pitch_lama_sp, yaw_lama_sp));
+
+					float yaw_lama_sp = wrap_pi(standard_eul.psi() + atan2(left_mean-right_mean,_concrete_tool_y_dist));
+					float pitch_lama_sp = standard_eul.theta() + atan2(bottom_mean-top_mean, _concrete_tool_z_dist);
+
+					Quatf q_lama_sp = Quatf(Eulerf(standard_eul.phi(), pitch_lama_sp, yaw_lama_sp));
 
 					// To do: aggiungere yaw rate sp
-					_attitude_control.setAttitudeSetpoint(Quatf(_last_attitude_setpoint.q_d) * q_lama_sp, 0.0f);
+					_last_attitude_setpoint.roll_body = standard_eul.phi();
+					_last_attitude_setpoint.pitch_body = pitch_lama_sp;
+					_last_attitude_setpoint.yaw_body = yaw_lama_sp;
+					_last_attitude_setpoint.timestamp = hrt_absolute_time();
+					_vehicle_attitude_setpoint_pub.publish(_last_attitude_setpoint);
+
+					_attitude_control.setAttitudeSetpoint(q_lama_sp, 0.0f);
+					PX4_INFO("Lm Rm Bm Tm: \t %3.3f \t %3.3f \t %3.3f \t %3.3f", (double)left_mean, (double)right_mean,
+					(double)bottom_mean, (double)top_mean);
+					PX4_INFO("New setpoint: %f %f", (double)pitch_lama_sp, (double)yaw_lama_sp);
 
 					_last_concrete_data_time = tool_data.timestamp;
 

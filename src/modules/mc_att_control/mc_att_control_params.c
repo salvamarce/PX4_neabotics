@@ -191,7 +191,7 @@ PARAM_DEFINE_FLOAT(MC_MAX_FXY, 0.15f);
  * @decimal 2
  * @group LAMA
 */
-PARAM_DEFINE_FLOAT(CONC_TOOL_Y_DIST, 0.3f);
+PARAM_DEFINE_FLOAT(CONC_TOOL_Y_DIST, 0.25f);
 
 /**
  * Distance between ToFs of the concrete tool along Z-axis tool frame
