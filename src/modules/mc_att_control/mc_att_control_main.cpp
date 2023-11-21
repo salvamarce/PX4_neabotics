@@ -275,6 +275,10 @@ MulticopterAttitudeControl::Run()
 
 	// run controller on attitude updates
 	vehicle_attitude_s v_att;
+	//*** CUSTOM ***
+	_new_attitude_sp = false;
+	_new_lama_sp = false;
+	//*** END-CUSTOM ***
 
 	if (_vehicle_attitude_sub.update(&v_att)) {
 
@@ -307,13 +311,15 @@ MulticopterAttitudeControl::Run()
 		if (_vehicle_attitude_setpoint_sub.updated()) {
 			vehicle_attitude_setpoint_s vehicle_attitude_setpoint;
 
+			// To do: Qui potrei usare il copyto direttamente su actual_setpoint
 			if (_vehicle_attitude_setpoint_sub.copy(&vehicle_attitude_setpoint)
 			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint_time)) {
 
 				_last_attitude_setpoint_time = vehicle_attitude_setpoint.timestamp;
-				_last_attitude_setpoint = vehicle_attitude_setpoint;
+				_actual_attitude_setpoint = vehicle_attitude_setpoint;
 				// _attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate);
 				_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
+				_new_attitude_sp = true;
 			}
 		}
 
@@ -357,48 +363,41 @@ MulticopterAttitudeControl::Run()
 		bool run_att_ctrl = _vehicle_control_mode.flag_control_attitude_enabled && (is_hovering || is_tailsitter_transition);
 
 		// *** CUSTOM ***
-		if (true){
-			//!_vehicle_control_mode.flag_control_lama_enabled &&
-		    //!_vehicle_control_mode.flag_control_manual_enabled){
 
-			if(_concrete_tool_data_sub.updated()){
-				concrete_tool_data_s tool_data;
+		_yaw_lama_sp = 0.0f;
+		_pitch_lama_sp = 0.0f;
 
-				if (_concrete_tool_data_sub.copy(&tool_data)
-			    	    && (tool_data.timestamp > _last_concrete_data_time)) {
+		if(_concrete_tool_data_sub.updated()){
+			concrete_tool_data_s tool_data;
 
-					float left_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
-							   tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT]);
+			if (_concrete_tool_data_sub.copy(&tool_data)
+				&& (tool_data.timestamp > _last_concrete_data_time)) {
 
-					float right_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_RIGHT] +
-							   tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+				float left_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
+							tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT]);
 
-					float bottom_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT] +
-							   tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+				float right_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_RIGHT] +
+							tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
 
-					float top_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
-							   tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
+				float bottom_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT] +
+							tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
 
-					_yaw_lama_sp = atan2(left_mean-right_mean,_concrete_tool_y_dist);
-					_pitch_lama_sp = atan2(bottom_mean-top_mean, _concrete_tool_z_dist);
+				float top_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
+							tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
 
-					_last_concrete_data_time = tool_data.timestamp;
+				// To do: saturazione su yaw e pitch lama sp (valore in rad/s)
+				float elapsed_time = math::constrain(((hrt_absolute_time()  - _last_concrete_data_time) * 1e-6f), 0.0002f, 0.02f);
+				_yaw_lama_sp = atan2(left_mean-right_mean,_concrete_tool_y_dist) * elapsed_time;
+				_pitch_lama_sp = atan2(bottom_mean-top_mean, _concrete_tool_z_dist) * elapsed_time;
 
-				}
+				_last_concrete_data_time = tool_data.timestamp;
+
+				_new_lama_sp = true;
+
 			}
 		}
-		Quatf q_sp = Quatf(_last_attitude_setpoint.q_d) * Quatf(Eulerf(0.0f, _pitch_lama_sp, _yaw_lama_sp));
-		_attitude_control.setAttitudeSetpoint(q_sp, _last_attitude_setpoint.yaw_sp_move_rate);
-
-		// To do: aggiungere yaw rate sp
-		Eulerf eul_sp_log(q_sp);
-		_last_attitude_setpoint.roll_body = eul_sp_log.phi();
-		_last_attitude_setpoint.pitch_body = eul_sp_log.theta();
-		_last_attitude_setpoint.yaw_body = eul_sp_log.psi();
-		_last_attitude_setpoint.timestamp = hrt_absolute_time();
-		_vehicle_attitude_setpoint_pub.publish(_last_attitude_setpoint);
-
 		// *** END-CUSTOM ***
+
 
 		if (run_att_ctrl) {
 
@@ -414,6 +413,49 @@ MulticopterAttitudeControl::Run()
 			} else {
 				_man_roll_input_filter.reset(0.f);
 				_man_pitch_input_filter.reset(0.f);
+
+				//*** CUSTOM ***
+
+				/**
+				 * The LAMA mode can be enabled only once the drone is in proximity of the surface,
+				 * thus it will be always activated as secondary flight modes (the drone can't take off in this mode).
+				 * This mode changes the last given setpoint of yaw and pitch with the ToF sensors on the tool
+				*/
+				if(_vehicle_control_mode.flag_control_lama_enabled){
+
+					float yaw_des = wrap_pi(_last_attitude_sp.yaw_body + _yaw_lama_sp);
+					float pitch_des = _last_attitude_sp.pitch_body + _pitch_lama_sp;
+
+					// To do: aggiungere yaw rate sp
+					Quatf q_lama_sp(Eulerf(_actual_attitude_setpoint.roll_body, pitch_des, yaw_des));
+					q_lama_sp.copyTo(_des_q_sp);
+				}
+				else{
+					Quatf q_act_sp(_actual_attitude_setpoint.q_d); //Non potevo fare =q_d
+					q_act_sp.copyTo(_des_q_sp);
+				}
+
+				if( _new_attitude_sp || _new_lama_sp){
+
+					// Copy the rest of the message
+					_last_attitude_sp = _actual_attitude_setpoint;
+
+					// Set the desired attitude depending on the flight mode
+					// To do: trovare un modo più pulito per evitare troppi passaggi quatf-eul
+					Quatf q_final_sp(_des_q_sp);
+					Eulerf eul_sp(q_final_sp);
+					_last_attitude_sp.roll_body = eul_sp.phi();
+					_last_attitude_sp.pitch_body = eul_sp.theta();
+					_last_attitude_sp.yaw_body = eul_sp.psi();
+					q_final_sp.copyTo(_last_attitude_sp.q_d);
+
+					_attitude_control.setAttitudeSetpoint(q_final_sp, _last_attitude_sp.yaw_sp_move_rate);
+					_last_attitude_sp.timestamp = hrt_absolute_time();
+					_vehicle_attitude_setpoint_pub.publish(_last_attitude_sp);
+				}
+
+				//*** END-CUSTOM ***
+
 			}
 
 			Vector3f rates_sp = _attitude_control.update(q);

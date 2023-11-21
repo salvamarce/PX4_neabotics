@@ -50,7 +50,8 @@ enum PX4_CUSTOM_MAIN_MODE {
 	PX4_CUSTOM_MAIN_MODE_OFFBOARD,
 	PX4_CUSTOM_MAIN_MODE_STABILIZED,
 	PX4_CUSTOM_MAIN_MODE_RATTITUDE_LEGACY,
-	PX4_CUSTOM_MAIN_MODE_SIMPLE /* unused, but reserved for future use */
+	PX4_CUSTOM_MAIN_MODE_SIMPLE, /* unused, but reserved for future use */
+	PX4_CUSTOM_MAIN_MODE_LAMA /* CUSTOM  - andrebbe come submode di posctl?*/
 };
 
 enum PX4_CUSTOM_SUB_MODE_AUTO {

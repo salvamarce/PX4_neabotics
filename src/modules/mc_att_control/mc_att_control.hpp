@@ -161,8 +161,12 @@ private:
 	float _concrete_tool_z_dist;
 
 	hrt_abstime _last_concrete_data_time{0};
-	vehicle_attitude_setpoint_s _last_attitude_setpoint;
+	hrt_abstime _last_attitude_total_sp_time{0};
+	vehicle_attitude_setpoint_s _actual_attitude_setpoint, _last_attitude_sp;
 	float _yaw_lama_sp, _pitch_lama_sp;
+	bool _new_attitude_sp = false;
+	bool _new_lama_sp = false;
+	float _des_q_sp[4]; //To do: dare un nome più esplicativo
 
 	/*** END-CUSTOM ***/
 

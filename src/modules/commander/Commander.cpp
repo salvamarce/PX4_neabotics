@@ -404,10 +404,16 @@ int Commander::custom_command(int argc, char *argv[])
 						     PX4_CUSTOM_SUB_MODE_AUTO_LAND);
 
 			} else if (!strcmp(argv[1], "auto:precland")) {
-				send_vehicle_command(vehicle_command_s::VEHICLE_CMD_DO_SET_MODE, 1, PX4_CUSTOM_MAIN_MODE_AUTO,
-						     PX4_CUSTOM_SUB_MODE_AUTO_PRECLAND);
+				send_vehicle_command(vehicle_command_s::VEHICLE_CMD_DO_SET_MODE, 1, PX4_CUSTOM_MAIN_MODE_AUTO);
 
-			} else {
+			}
+			//*** CUSTOM ***
+			else if (!strcmp(argv[1], "lama")) {
+				send_vehicle_command(vehicle_command_s::VEHICLE_CMD_DO_SET_MODE, 1, PX4_CUSTOM_MAIN_MODE_LAMA);
+
+			}
+			//*** END-CUSTOM ***
+			else {
 				PX4_ERR("argument %s unsupported.", argv[1]);
 			}
 
@@ -775,6 +781,10 @@ Commander::handle_command(const vehicle_command_s &cmd)
 				} else if (custom_main_mode == PX4_CUSTOM_MAIN_MODE_POSCTL) {
 					desired_nav_state = vehicle_status_s::NAVIGATION_STATE_POSCTL;
 
+				//*** CUSTOM ***
+				} else if (custom_main_mode == PX4_CUSTOM_MAIN_MODE_LAMA) {
+					desired_nav_state = vehicle_status_s::NAVIGATION_STATE_LAMA;
+				//*** END-CUSTOM ***
 				} else if (custom_main_mode == PX4_CUSTOM_MAIN_MODE_AUTO) {
 					if (custom_sub_mode > 0) {
 
@@ -2823,8 +2833,8 @@ The commander module contains the state machine for mode switching and failsafe 
 	PRINT_MODULE_USAGE_COMMAND("land");
 	PRINT_MODULE_USAGE_COMMAND_DESCR("transition", "VTOL transition");
 	PRINT_MODULE_USAGE_COMMAND_DESCR("mode", "Change flight mode");
-	PRINT_MODULE_USAGE_ARG("manual|acro|offboard|stabilized|altctl|posctl|auto:mission|auto:loiter|auto:rtl|auto:takeoff|auto:land|auto:precland",
-			"Flight mode", false);
+	PRINT_MODULE_USAGE_ARG("manual|acro|offboard|stabilized|altctl|posctl|auto:mission|auto:loiter|auto:rtl|auto:takeoff|auto:land|auto:precland|lama",
+			"Flight mode", false); // CUSTOM
 	PRINT_MODULE_USAGE_COMMAND("pair");
 	PRINT_MODULE_USAGE_COMMAND("lockdown");
 	PRINT_MODULE_USAGE_ARG("on|off", "Turn lockdown on or off", false);

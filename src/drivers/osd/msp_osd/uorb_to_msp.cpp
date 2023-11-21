@@ -162,6 +162,12 @@ msp_name_t construct_display_message(const vehicle_status_s &vehicle_status,
 			display.set(MessageDisplayType::FLIGHT_MODE, "MAX");
 			break;
 
+		//*** CUSTOM ***
+		case vehicle_status_s::NAVIGATION_STATE_LAMA:
+			display.set(MessageDisplayType::FLIGHT_MODE, "LAMA");
+			break;
+		//*** END-CUSTOM ***
+
 		default:
 			display.set(MessageDisplayType::FLIGHT_MODE, "???");
 		}
