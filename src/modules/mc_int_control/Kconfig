@@ -1,0 +1,12 @@
+menuconfig MODULES_MC_INT_CONTROL
+	bool "mc_int_control"
+	default n
+	---help---
+		Enable support for mc_int_control
+
+menuconfig USER_MC_INT_CONTROL
+	bool "mc_INT_control running as userspace module"
+	default y
+	depends on BOARD_PROTECTED && MODULES_MC_INT_CONTROL
+	---help---
+		Put mc_int_control in userspace memory

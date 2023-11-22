@@ -3,4 +3,4 @@ uint8 NUM_SERVO_OUTPUTS = 4
 
 float32[4] angle # servo angle
 
-# TOPICS tilting_servo_setpoint
+# TOPICS tilting_servo_setpoint interaction_servo_setpoint

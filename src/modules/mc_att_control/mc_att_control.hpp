@@ -108,7 +108,7 @@ private:
 
 	uORB::Subscription _autotune_attitude_control_status_sub{ORB_ID(autotune_attitude_control_status)};
 	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
-	uORB::Subscription _vehicle_attitude_setpoint_sub{ORB_ID(vehicle_attitude_setpoint)};
+	//uORB::Subscription _vehicle_attitude_setpoint_sub{ORB_ID(vehicle_attitude_setpoint)};
 	uORB::Subscription _vehicle_control_mode_sub{ORB_ID(vehicle_control_mode)};
 	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};
 	uORB::Subscription _vehicle_local_position_sub{ORB_ID(vehicle_local_position)};
@@ -153,6 +153,7 @@ private:
 	uORB::Subscription _tilting_servo_sub{ORB_ID(tilting_servo_setpoint)};
 	uORB::Subscription _lama_state_sub{ORB_ID(lama_state)};
 	uORB::Subscription _concrete_tool_data_sub{ORB_ID(concrete_tool_data)};
+	uORB::Subscription _vehicle_attitude_setpoint_sub{ORB_ID(mc_pos_to_att_setpoint)};
 
 	AlphaFilter<float> _man_Fx_input_filter;
 	AlphaFilter<float> _man_Fy_input_filter;

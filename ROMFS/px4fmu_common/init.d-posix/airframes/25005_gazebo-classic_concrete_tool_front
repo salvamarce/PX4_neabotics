@@ -28,6 +28,7 @@
 
 . ${R}etc/init.d/rc.mc_defaults
 
+
 param set-default CA_AIRFRAME 13 #11 Tilting Multirotor
 
 set MAV_TYPE 14 #octorotor (0 is generic)
