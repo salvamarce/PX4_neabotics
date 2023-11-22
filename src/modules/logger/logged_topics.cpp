@@ -45,6 +45,10 @@ using namespace px4::logger;
 
 void LoggedTopics::add_default_topics()
 {
+	/*** CUSTOM ***/
+	add_topic("concrete_tool_data");
+	add_topic("lama_state_machine");
+	/*** END-CUSTOM ***/
 	add_topic("debug_array");
 	add_topic("action_request");
 	add_topic("actuator_armed");

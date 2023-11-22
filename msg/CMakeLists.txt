@@ -234,6 +234,8 @@ set(msg_files
 	TiltingServoSp.msg
 	LamaState.msg
 	ConcreteToolData.msg
+	ApproachingActivation.msg
+	LamaStateMachine.msg
 	#*** END-CUSTOM
 
 )
