@@ -48,6 +48,9 @@ list(APPEND flight_tasks_all
 	ManualPosition
 	ManualPositionSmoothVel
 	Transition
+	#*** CUSTOM **#
+	LamaPosition
+	#*** END-CUSTOM **#
 )
 
 if(NOT px4_constrained_flash_build)

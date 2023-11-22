@@ -195,6 +195,17 @@ void FlightModeManager::start_flight_task()
 		}
 	}
 
+	/*** CUSTOM ***/
+	// Lama position control
+	if (_vehicle_status_sub.get().nav_state == vehicle_status_s::NAVIGATION_STATE_LAMA) {
+		found_some_task = true;
+		FlightTaskError error = FlightTaskError::NoError;
+		error = switchTask(FlightTaskIndex::LamaPosition);
+		task_failure = (error != FlightTaskError::NoError);
+		matching_task_running = matching_task_running && !task_failure;
+	}
+	/*** END-CUSTOM ***/
+
 	// Manual position control
 	if ((_vehicle_status_sub.get().nav_state == vehicle_status_s::NAVIGATION_STATE_POSCTL) || task_failure) {
 		found_some_task = true;
@@ -281,6 +292,7 @@ void FlightModeManager::tryApplyCommandIfAny()
 			_current_command.command = 0;
 
 			if (!success) {
+				// if lama -> switchTask(position)?
 				switchTask(FlightTaskIndex::Failsafe);
 				_command_failed = true;
 			}
