@@ -235,7 +235,6 @@ set(msg_files
 	LamaState.msg
 	ConcreteToolData.msg
 	ApproachingActivation.msg
-	LamaStateMachine.msg
 	#*** END-CUSTOM
 
 )

@@ -108,6 +108,12 @@ bool FlightTaskLamaPosition::update(){
 			break;
 	}
 
+	if(_state_sub.updated()){
+		lama_state_s temp_state;
+		if (_state_sub.copy(&temp_state)
+			    && (temp_state.timestamp > _lama_state.timestamp))
+			_lama_state = temp_state;	// save flags and fields not controlled by this module
+	}
 	_lama_state.state = (uint8_t)_currentState;
 	_state_pub.publish(_lama_state);
 

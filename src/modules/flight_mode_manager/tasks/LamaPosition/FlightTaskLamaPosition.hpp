@@ -45,7 +45,7 @@
 #include <uORB/topics/concrete_tool_data.h>
 #include <uORB/topics/approaching_activation.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
-#include <uORB/topics/lama_state_machine.h>
+#include <uORB/topics/lama_state.h>
 
 class FlightTaskLamaPosition : public FlightTaskManualPosition
 {
@@ -75,8 +75,9 @@ private:
 	uORB::Subscription _approaching_activation_sub {ORB_ID(approaching_activation)};
 	struct approaching_activation_s _approaching_activation;
 
-	uORB::Publication<lama_state_machine_s> _state_pub {ORB_ID(lama_state_machine)};
-	lama_state_machine_s _lama_state;
+	uORB::Subscription _state_sub {ORB_ID(lama_state)};
+	uORB::Publication<lama_state_s> _state_pub {ORB_ID(lama_state)};
+	lama_state_s _lama_state;
 
 	trajectory_setpoint_s _first_position_setpoint;
 	matrix::Vector3f _prev_position_setpoint;
