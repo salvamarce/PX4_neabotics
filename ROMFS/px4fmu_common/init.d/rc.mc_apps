@@ -83,7 +83,7 @@ land_detector start multicopter
 # To Do: cambiare parametro di check
 # Start interaction controller for one-tilt tilting drone
 #
-if param compare -s CA_AIRFRAME 13
+if param compare CA_AIRFRAME 13
 then
 	mc_int_control start
 fi
