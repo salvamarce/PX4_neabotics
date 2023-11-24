@@ -2,6 +2,9 @@
 
 uint64 timestamp
 
+uint64 timestamp_tof
+uint64 timestamp_load
+
 # Load sensors
 float32[3] force
 float32[3] torque
