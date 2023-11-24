@@ -101,6 +101,7 @@ private:
 	uORB::Subscription _control_mode_sub{ORB_ID(vehicle_control_mode)};
 	uORB::Subscription _rates_setpoint_sub{ORB_ID(vehicle_rates_setpoint)};
 	uORB::Subscription _servo_setpoint_sub{ORB_ID(tilting_servo_setpoint)};
+	uORB::Subscription _lama_state_sub{ORB_ID(lama_state)};
 
 	perf_counter_t  _loop_perf;             /**< loop duration performance counter */
 
@@ -108,9 +109,9 @@ private:
 	vehicle_attitude_setpoint_s _attitude_setpoint;
 	vehicle_rates_setpoint_s _rates_setpoint;
 	tilting_servo_sp_s _attitude_servo_sp;
-	lama_state_s _lama_state;
 
 	hrt_abstime _last_concrete_tool_data_time{0};
+	hrt_abstime _last_interaction_time{0};
 
 	float _force_setpoint;
 	float _force_int;
@@ -126,7 +127,8 @@ private:
 		(ParamFloat<px4::params::LAMA_FORCE_KP>)  _param_lama_force_Kp,   /** Force control proportional gain */
 		(ParamFloat<px4::params::LAMA_FORCE_KI>)  _param_lama_force_Ki,   /** Force control proportional gain */
 		(ParamFloat<px4::params::LAMA_MIN_FORCE>) _param_lama_min_int_force, /** Minimum force value to start the control */
-		(ParamFloat<px4::params::LAMA_LIMIT_INT>) _param_limit_integral_error /** Upper and lower limit for integral force error*/
+		(ParamFloat<px4::params::LAMA_LIMIT_INT>) _param_limit_integral_error, /** Upper and lower limit for integral force error*/
+		(ParamFloat<px4::params::LAMA_MIN_INT_F>) _param_min_int_force /** Minimum desired force to start the interaction*/
 	)
 
 };

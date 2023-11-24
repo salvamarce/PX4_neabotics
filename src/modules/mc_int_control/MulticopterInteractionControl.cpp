@@ -128,9 +128,13 @@ void MulticopterInteractionControl::Run()
 
 			concrete_tool_data_s concrete_tool_data;
 
+			lama_state_s lama_state;
+			_lama_state_sub.update(&lama_state);
+
+			lama_state.engage_interaction = false;
+
 			if(_concrete_tool_sub.copy(&concrete_tool_data)
-			   &&(concrete_tool_data.timestamp > _last_concrete_tool_data_time)){
-			   //concrete_tool_data.timestamp_force > _last_concrete_tool_data_time){
+			   &&concrete_tool_data.timestamp_load > _last_concrete_tool_data_time){
 
 				if(concrete_tool_data.force[0] > _min_interaction_force){
 
@@ -170,13 +174,30 @@ void MulticopterInteractionControl::Run()
 					_thrust_setpoint_pub.publish(rates_sp);
 					_servo_setpoint_pub.publish(servo_sp);
 
+					if(lama_state.state == lama_state_s::APPROACH){
+						if(1e-6f*(hrt_absolute_time()-_last_interaction_time) > 2.0f && fabs(delta_f)>_param_min_int_force.get()){
+							lama_state.engage_interaction = true;
+
+							PX4_WARN("Interaction ok");
+						}
+						else{
+							_last_interaction_time = hrt_absolute_time();
+						}
+					}
+
 				}
+				else
+					_last_interaction_time = hrt_absolute_time();
 
 			}
+			PX4_INFO("int: %d", (int)lama_state.engage_interaction);
+			lama_state.timestamp = hrt_absolute_time();
+			_lama_state_pub.publish(lama_state);
 
 		}
 		else{
 			resetIntegral();
+			_last_interaction_time = hrt_absolute_time();
 
 			// fx = Fz * cos(90-alpha) = Fz * sin(alpha)
 			_old_f_sp(0) = -_rates_setpoint.thrust_body[2] * THRUST_Z_MAX * sinf(_attitude_servo_sp.angle[0]);

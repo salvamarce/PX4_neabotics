@@ -104,5 +104,18 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_FORCE, 5.0f);
 PARAM_DEFINE_FLOAT(LAMA_LIMIT_INT, 15.0f);
 
 
+/**
+ * Minimum desired force to start the interaction
+ *
+ * @min 0.0
+ * @max 10.0
+ * @decimal 3
+ * @increment 0.001
+ * @group LAMA
+ */
+PARAM_DEFINE_FLOAT(LAMA_MIN_INT_F, 0.5f);
+
+
+
 
 
