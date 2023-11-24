@@ -20,18 +20,13 @@ PARAM_DEFINE_INT32(APPR_SEND_POS_SP, 0);
 PARAM_DEFINE_FLOAT(APPR_MAX_VEL, 0.3f);
 
 /**
- * Epsilon value for approach phase.
- * 
- * The position setpoint for the approach phase is considered
- * to be behind the wall, specifically APPR_EPS meters behind the surface.
- * Tuning this parameter helps to reach a satisfactory contact at the end
- * of approach phase.
+ * Acceleration setpoint during the transition between approach and interaction
  *
- * @unit m
+ * @unit m/s^2
  * @decimal 3
  * @group Lama
  */
-PARAM_DEFINE_FLOAT(APPR_EPS, 0.25f);
+PARAM_DEFINE_FLOAT(APPR_X_PUSH_ACC, 0.5f);
 
 /**
  * Maximum distance that can be read by tof sensors.

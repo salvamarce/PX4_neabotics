@@ -190,7 +190,7 @@ void MulticopterInteractionControl::Run()
 					_last_interaction_time = hrt_absolute_time();
 
 			}
-			PX4_INFO("int: %d", (int)lama_state.engage_interaction);
+			//PX4_INFO("int: %d", (int)lama_state.engage_interaction);
 			lama_state.timestamp = hrt_absolute_time();
 			_lama_state_pub.publish(lama_state);
 
