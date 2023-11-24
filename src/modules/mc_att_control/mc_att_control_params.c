@@ -204,4 +204,26 @@ PARAM_DEFINE_FLOAT(CONC_TOOL_Y_DIST, 0.25f);
 */
 PARAM_DEFINE_FLOAT(CONC_TOOL_Z_DIST, 1.0f);
 
+/**
+ * Minimum yaw absolute error to start approach
+ *
+ * @unit rad
+ * @min 0.0
+ * @max 1.0
+ * @decimal 3
+ * @group LAMA
+*/
+PARAM_DEFINE_FLOAT(LAMA_MIN_YAW, 0.026f);
+
+/**
+ * Minimum pitch absolute error to start approach
+ *
+ * @unit rad
+ * @min 0.0
+ * @max 1.0
+ * @decimal 3
+ * @group LAMA
+*/
+PARAM_DEFINE_FLOAT(LAMA_MIN_PITCH, 0.026f);
+
 // *** END-CUSTOM ***

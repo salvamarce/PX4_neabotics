@@ -12,3 +12,4 @@ uint8 state
 bool engage_approach
 bool engage_interaction
 
+#TOPICS lama_state

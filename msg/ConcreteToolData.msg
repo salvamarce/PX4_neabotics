@@ -1,5 +1,4 @@
 # Messages from the lama tool
-
 uint64 timestamp
 
 uint64 timestamp_tof

@@ -372,6 +372,7 @@ MulticopterAttitudeControl::Run()
 
 			if (_concrete_tool_data_sub.copy(&tool_data)
 				&& (tool_data.timestamp > _last_concrete_data_time)) {
+				//&& (tool_data.timestamp_distance > _last_concrete_data_time)) {
 
 				float left_mean = 0.5f*(tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
 							tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT]);
@@ -423,16 +424,40 @@ MulticopterAttitudeControl::Run()
 				*/
 				if(_vehicle_control_mode.flag_control_lama_enabled){
 
+					lama_state_s lama_state;
+					_lama_state_sub.update(&lama_state);
+
+					//To do: inserire soglia sulle lama sp
 					float yaw_des = wrap_pi(_last_attitude_sp.yaw_body + _yaw_lama_sp);
 					float pitch_des = _last_attitude_sp.pitch_body + _pitch_lama_sp;
+
+					// If the lama_sp is minimum for 2 seconds, start approach
+					PX4_INFO("ys, ps: \t %1.5f \t %1.5f", (double)_yaw_lama_sp, (double)_pitch_lama_sp);
+					if( fabs(_yaw_lama_sp) < _param_min_lama_yaw.get() && fabs(_pitch_lama_sp)< _param_min_lama_pitch.get() ){
+
+						PX4_INFO("time: %3.4f", (double)((hrt_absolute_time() - _lama_approach_time)*1e-6f));
+
+						if( 1e-6f*(hrt_absolute_time() - _lama_approach_time) > 5_s && lama_state.state == lama_state_s::IDLE){
+							lama_state.engage_approach = true;
+							lama_state.timestamp = hrt_absolute_time();
+							_lama_state_pub.publish(lama_state);
+							PX4_INFO("approach: %d", (int)lama_state.engage_approach);
+						}
+					}
+					else{
+						_lama_approach_time = hrt_absolute_time();
+						lama_state.timestamp = hrt_absolute_time();
+						lama_state.engage_approach = false;
+						_lama_state_pub.publish(lama_state);
+					}
 
 					// To do: aggiungere yaw rate sp
 					Quatf q_lama_sp(Eulerf(_actual_attitude_setpoint.roll_body, pitch_des, yaw_des));
 					q_lama_sp.copyTo(_des_q_sp);
 				}
 				else{
-					Quatf q_act_sp(_actual_attitude_setpoint.q_d); //Non potevo fare =q_d
-					q_act_sp.copyTo(_des_q_sp);
+					for(int i=0; i<4; i++)
+						_des_q_sp[i] = _actual_attitude_setpoint.q_d[i];
 				}
 
 				if( _new_attitude_sp || _new_lama_sp){
@@ -441,7 +466,6 @@ MulticopterAttitudeControl::Run()
 					_last_attitude_sp = _actual_attitude_setpoint;
 
 					// Set the desired attitude depending on the flight mode
-					// To do: trovare un modo più pulito per evitare troppi passaggi quatf-eul
 					Quatf q_final_sp(_des_q_sp);
 					Eulerf eul_sp(q_final_sp);
 					_last_attitude_sp.roll_body = eul_sp.phi();

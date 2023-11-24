@@ -108,7 +108,7 @@ private:
 
 	uORB::Subscription _autotune_attitude_control_status_sub{ORB_ID(autotune_attitude_control_status)};
 	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
-	uORB::Subscription _vehicle_attitude_setpoint_sub{ORB_ID(vehicle_attitude_setpoint)};
+	//uORB::Subscription _vehicle_attitude_setpoint_sub{ORB_ID(vehicle_attitude_setpoint)};
 	uORB::Subscription _vehicle_control_mode_sub{ORB_ID(vehicle_control_mode)};
 	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};
 	uORB::Subscription _vehicle_local_position_sub{ORB_ID(vehicle_local_position)};
@@ -150,9 +150,12 @@ private:
 
 	/*** CUSTOM ***/
 	uORB::Publication<tilting_servo_sp_s>	_tilting_servo_pub{ORB_ID(tilting_servo_setpoint)};
+	uORB::Publication<lama_state_s> _lama_state_pub{ORB_ID(lama_state)};
+
 	uORB::Subscription _tilting_servo_sub{ORB_ID(tilting_servo_setpoint)};
 	uORB::Subscription _lama_state_sub{ORB_ID(lama_state)};
 	uORB::Subscription _concrete_tool_data_sub{ORB_ID(concrete_tool_data)};
+	uORB::Subscription _vehicle_attitude_setpoint_sub{ORB_ID(mc_pos_to_att_setpoint)};
 
 	AlphaFilter<float> _man_Fx_input_filter;
 	AlphaFilter<float> _man_Fy_input_filter;
@@ -162,6 +165,8 @@ private:
 
 	hrt_abstime _last_concrete_data_time{0};
 	hrt_abstime _last_attitude_total_sp_time{0};
+	hrt_abstime _lama_approach_time{0};
+
 	vehicle_attitude_setpoint_s _actual_attitude_setpoint, _last_attitude_sp;
 	float _yaw_lama_sp, _pitch_lama_sp;
 	bool _new_attitude_sp = false;
@@ -196,12 +201,14 @@ private:
 
 		/*** CUSTOM ***/
 
-		(ParamInt<px4::params::MC_PITCH_ON_TILT>)      _param_mpc_pitch_on_tilt,   /**< map the pitch angle on the tilt */
-		(ParamInt<px4::params::CA_TILTING_TYPE>)       _param_tilting_type,	/**< 0: H-tilt, 1: omnidirectional */
-		(ParamInt<px4::params::CA_AIRFRAME>)	       _param_airframe,		/**< 11: tilting multirotor */
-		(ParamFloat<px4::params::MC_MAX_FXY>)          _param_f_max,		/**< maximum horizontal force for omni drones*/
+		(ParamInt<px4::params::MC_PITCH_ON_TILT>)    _param_mpc_pitch_on_tilt,   /**< map the pitch angle on the tilt */
+		(ParamInt<px4::params::CA_TILTING_TYPE>)     _param_tilting_type,	/**< 0: H-tilt, 1: omnidirectional */
+		(ParamInt<px4::params::CA_AIRFRAME>)	     _param_airframe,		/**< 11: tilting multirotor */
+		(ParamFloat<px4::params::MC_MAX_FXY>)        _param_f_max,		/**< maximum horizontal force for omni drones*/
 		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>) _param_concrete_tool_y_dist,
-		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) _param_concrete_tool_z_dist
+		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) _param_concrete_tool_z_dist,
+		(ParamFloat<px4::params::LAMA_MIN_YAW>)     _param_min_lama_yaw,
+		(ParamFloat<px4::params::LAMA_MIN_PITCH>)   _param_min_lama_pitch
 		/*** END-CUSTOM ***/
 
 	)
