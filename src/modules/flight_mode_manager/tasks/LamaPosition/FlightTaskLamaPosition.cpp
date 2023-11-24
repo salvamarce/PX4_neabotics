@@ -96,8 +96,6 @@ bool FlightTaskLamaPosition::update(){
 	_log_tool_data.data[6] = _tool_data.torque[2];
 
 
-
-
 	// State machine
 	switch(_currentState){
 		case LamaState::IDLE:
@@ -233,7 +231,6 @@ void FlightTaskLamaPosition::_approachMode(){
 		_pushing_position_setpoint = _position_setpoint;
 
 
-
 	if(_avgDist < 0.1f)
 		wasNearWall = true;
 	else if(_avgDist > 0.3f && _avgDist < 0.4f)
@@ -255,7 +252,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 
 		case LamaState::IDLE:
 			// Switch to approach if angle error ok and pitch sticks completely on
-			if(/*_lama_state.engage_approach &&*/ _sticks.getPitch() > 0.75f){
+			if(_tofMeasureOk && _lama_state.engage_approach && _sticks.getPitch() > 0.75f){
 				PX4_WARN("Switch into approach");
 				_currentState = LamaState::APPROACH;
 			}
