@@ -432,16 +432,16 @@ MulticopterAttitudeControl::Run()
 					float pitch_des = _last_attitude_sp.pitch_body + _pitch_lama_sp;
 
 					// If the lama_sp is minimum for 2 seconds, start approach
-					PX4_INFO("ys, ps: \t %1.5f \t %1.5f", (double)_yaw_lama_sp, (double)_pitch_lama_sp);
+					//PX4_INFO("ys, ps: \t %1.5f \t %1.5f", (double)_yaw_lama_sp, (double)_pitch_lama_sp);
 					if( fabs(_yaw_lama_sp) < _param_min_lama_yaw.get() && fabs(_pitch_lama_sp)< _param_min_lama_pitch.get() ){
 
-						PX4_INFO("time: %3.4f", (double)((hrt_absolute_time() - _lama_approach_time)*1e-6f));
+						//PX4_INFO("time: %3.4f", (double)((hrt_absolute_time() - _lama_approach_time)*1e-6f));
 
-						if( 1e-6f*(hrt_absolute_time() - _lama_approach_time) > 5_s && lama_state.state == lama_state_s::IDLE){
+						if( 1e-6f*(hrt_absolute_time() - _lama_approach_time) > 5.0f && lama_state.state == lama_state_s::IDLE){
 							lama_state.engage_approach = true;
 							lama_state.timestamp = hrt_absolute_time();
 							_lama_state_pub.publish(lama_state);
-							PX4_INFO("approach: %d", (int)lama_state.engage_approach);
+							//PX4_INFO("approach: %d", (int)lama_state.engage_approach);
 						}
 					}
 					else{

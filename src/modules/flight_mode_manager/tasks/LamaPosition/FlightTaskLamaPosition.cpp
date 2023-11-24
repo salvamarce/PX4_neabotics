@@ -79,6 +79,12 @@ bool FlightTaskLamaPosition::update(){
 			_approaching_activation = approaching_activation;
 	}
 
+	// reset sticks setpoint
+	_position_setpoint.setNaN();
+	_velocity_setpoint.setZero();
+	_acceleration_setpoint.setZero();
+	_yaw_setpoint = NAN;
+	_yawspeed_setpoint = 0;
 
 	_readSensors();
 
@@ -176,6 +182,10 @@ void FlightTaskLamaPosition::_idleMode(){
 }
 
 void FlightTaskLamaPosition::_approachMode(){
+	// Used to ignore sticks command in all cases
+	_position_setpoint = _prev_position_setpoint;
+	_velocity_setpoint.setZero();
+
 	if(!_tofMeasureOk && !wasNearWall){
 		PX4_ERR("Lost tof measure during approach");
 		return;
@@ -264,7 +274,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 			if(!_tofMeasureOk && !wasNearWall){
 				_currentState = LamaState::IDLE;
 				_idle_position_setpoint = _position;
-				PX4_WARN("Switch into IDLE");
+				PX4_WARN("Switch into idle");
 			}
 			else if (_lama_state.engage_interaction){
 				PX4_WARN("Switch into interaction");
