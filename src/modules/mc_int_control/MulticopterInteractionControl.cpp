@@ -136,6 +136,8 @@ void MulticopterInteractionControl::Run()
 			if(_concrete_tool_sub.copy(&concrete_tool_data)
 			   &&concrete_tool_data.timestamp_load > _last_concrete_tool_data_time){
 
+				_last_concrete_tool_data_time = hrt_absolute_time();
+
 				if(concrete_tool_data.force[0] > _min_interaction_force){
 
 					float dt = math::constrain(((hrt_absolute_time()  - _last_concrete_tool_data_time) * 1e-6f), 0.0002f, 0.02f);
@@ -156,8 +158,6 @@ void MulticopterInteractionControl::Run()
 
 					// PX4_INFO("fx, fz, servo: \t %3.3f \t %3.3f \t %3.3f", (double)fx, (double)fz, (double)math::degrees(servo_angle));
 
-					_last_concrete_tool_data_time = hrt_absolute_time();
-
 					vehicle_rates_setpoint_s rates_sp;
 
 					rates_sp = _rates_setpoint;
@@ -175,7 +175,8 @@ void MulticopterInteractionControl::Run()
 					_servo_setpoint_pub.publish(servo_sp);
 
 					if(lama_state.state == lama_state_s::APPROACH){
-						if(1e-6f*(hrt_absolute_time()-_last_interaction_time) > 2.0f && fabs(delta_f)>_param_min_int_force.get()){
+						PX4_INFO("fx: %3.4f", (double)fx);
+						if(1e-6f*(hrt_absolute_time()-_last_interaction_time) > 2.0f && fabs(concrete_tool_data.force[0])>_param_min_int_force.get()){
 							lama_state.engage_interaction = true;
 
 							PX4_WARN("Interaction ok");
@@ -190,7 +191,6 @@ void MulticopterInteractionControl::Run()
 					_last_interaction_time = hrt_absolute_time();
 
 			}
-			PX4_INFO("int: %d", (int)lama_state.engage_interaction);
 			lama_state.timestamp = hrt_absolute_time();
 			_lama_state_pub.publish(lama_state);
 
