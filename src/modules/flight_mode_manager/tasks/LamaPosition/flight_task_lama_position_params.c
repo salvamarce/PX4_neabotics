@@ -1,21 +1,11 @@
-
 /**
- * Max approach velocity on x axis
+ * Maximum approach velocity
  *
  * @unit m/s
  * @decimal 3
  * @group Lama
  */
-PARAM_DEFINE_FLOAT(APPR_MAX_VEL_X, 0.3f);
-
-/**
- * Max approach velocity on z axis
- *
- * @unit m/s
- * @decimal 3
- * @group Lama
- */
-PARAM_DEFINE_FLOAT(APPR_MAX_VEL_Z, 0.2f);
+PARAM_DEFINE_FLOAT(APPR_MAX_VEL, 0.3f);
 
 /**
  * Epsilon value for approach phase.

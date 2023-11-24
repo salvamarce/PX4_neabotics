@@ -95,16 +95,16 @@ bool FlightTaskLamaPosition::update(){
 
 	switch(_currentState){
 		case LamaState::IDLE:
-			ret = _idleMode();
+			_idleMode();
 			break;
 		case LamaState::APPROACH:
-			ret = _approachMode();
+			_approachMode();
 			break;
 		case LamaState::INTERACTION:
-			ret = _interactionMode();
+			_interactionMode();
 			break;
 		case LamaState::LEAVING:
-			ret = _leavingMode();
+			_leavingMode();
 			break;
 	}
 
@@ -124,7 +124,7 @@ bool FlightTaskLamaPosition::update(){
 }
 
 
-bool FlightTaskLamaPosition::_readSensors(){
+void FlightTaskLamaPosition::_readSensors(){
 	if(_concrete_tool_data_sub.updated()){
 		concrete_tool_data_s data;
 		if(_concrete_tool_data_sub.copy(&data) && (data.timestamp > _tool_data.timestamp)){
@@ -135,7 +135,7 @@ bool FlightTaskLamaPosition::_readSensors(){
 			for(int i=0; i<4; ++i){
 				if(_tool_data.distance[i] >= _param_tof_max_dist.get() || _tool_data.distance[i] <= 0.05f){
 					//PX4_WARN("tof not ok");
-					return false;
+					return ;
 				}
 			}
 			_tofMeasureOk = true;
@@ -149,24 +149,23 @@ bool FlightTaskLamaPosition::_readSensors(){
 			//PX4_INFO("dist = %f", (double)_avgDist);
 		}
 	}
-	return true;
 }
 
 
-bool FlightTaskLamaPosition::_idleMode(){
+void FlightTaskLamaPosition::_idleMode(){
 	//PX4_INFO("[IDLE]");
 	Vector2f eps(0.25f, 0.0f);
 	Sticks::rotateIntoHeadingFrameXY(eps, _yaw, NAN);
 	_position_setpoint = _idle_position_setpoint;
 	_position_setpoint.xy() += eps;
 	_velocity_setpoint.setZero();
-	return true;
+	
 }
 
-bool FlightTaskLamaPosition::_approachMode(){
+void FlightTaskLamaPosition::_approachMode(){
 	if(!_tofMeasureOk){
 		PX4_ERR("Non dovresti essere qui");
-		return false;
+		return;
 	}
 
 	//PX4_INFO("\t[APPR]");
@@ -179,18 +178,18 @@ bool FlightTaskLamaPosition::_approachMode(){
 	float d_z = dist * sin(_vehicle_attitude_setpoint.pitch_body);
 
 	// Gains
-	float k_x = _param_approach_max_vel_x.get() / _param_tof_max_dist.get();
-	float k_z = _param_approach_max_vel_z.get() / _param_tof_max_dist.get();
+	float k = _param_approach_max_vel.get() / _param_tof_max_dist.get();
+	//float k_z = _param_approach_max_vel_z.get() / _param_tof_max_dist.get();
 
 	// Feedforward velocity setpoint
-	Vector2f vel_sp_xy (k_x * d_x, 0.0f);
+	Vector2f vel_sp_xy (k * d_x, 0.0f);
 	Sticks::rotateIntoHeadingFrameXY(vel_sp_xy, _yaw, NAN);
 	_velocity_setpoint.xy() = vel_sp_xy;
-	_velocity_setpoint(2) = k_z * d_z;
+	_velocity_setpoint(2) = k * d_z;
 
 	// Position setpoints
 	Vector2f pos_sp_xy;
-	pos_sp_xy(0) = k_x * d_x * _deltatime;
+	pos_sp_xy(0) = k * d_x * _deltatime;
 	pos_sp_xy(1) = 0.0f;		// y constant
 	Sticks::rotateIntoHeadingFrameXY(pos_sp_xy, _yaw, NAN);
 
@@ -209,15 +208,15 @@ bool FlightTaskLamaPosition::_approachMode(){
 	
 	//PX4_INFO("v_sp:%3.3f dx_sp:%3.3f\t=>\tvx_sp:%3.3f\tvy_sp:%3.3f; x_sp:%3.3f\ty_sp:%3.3f",
 	//	(double)(k_x * d_x), (double)(k_x*d_x*_deltatime), (double)vel_sp_xy(0), (double)vel_sp_xy(1), (double)_position_setpoint(0), (double)_position_setpoint(1));
-	return true;
+	
 }
 
-bool FlightTaskLamaPosition::_interactionMode(){
-	return true;
+void FlightTaskLamaPosition::_interactionMode(){
+	
 }
 
-bool FlightTaskLamaPosition::_leavingMode(){
-	return true;
+void FlightTaskLamaPosition::_leavingMode(){
+	
 }
 
 

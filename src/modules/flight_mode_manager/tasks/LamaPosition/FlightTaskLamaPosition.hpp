@@ -57,11 +57,11 @@ public:
 	bool update() override;
 
 private:
-	bool _readSensors();
-	bool _idleMode();
-	bool _approachMode();
-	bool _interactionMode();
-	bool _leavingMode();
+	void _readSensors();
+	void _idleMode();
+	void _approachMode();
+	void _interactionMode();
+	void _leavingMode();
 	void _handleStateTransitions();
 
 
@@ -104,8 +104,7 @@ private:
 
 
 	DEFINE_PARAMETERS(
-		(ParamFloat<px4::params::APPR_MAX_VEL_X>)		_param_approach_max_vel_x,
-		(ParamFloat<px4::params::APPR_MAX_VEL_Z>)		_param_approach_max_vel_z,
+		(ParamFloat<px4::params::APPR_MAX_VEL>)			_param_approach_max_vel,
 		(ParamFloat<px4::params::APPR_EPS>) 			_param_approach_eps,
 		(ParamFloat<px4::params::TOF_MAX_DIST>) 		_param_tof_max_dist,
 		(ParamFloat<px4::params::TOF_D_OFFSET>) 		_param_tof_d_offset
