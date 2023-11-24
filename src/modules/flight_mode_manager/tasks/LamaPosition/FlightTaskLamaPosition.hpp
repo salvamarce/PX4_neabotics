@@ -46,6 +46,7 @@
 #include <uORB/topics/approaching_activation.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/lama_state.h>
+#include <uORB/topics/debug_array.h>
 
 class FlightTaskLamaPosition : public FlightTaskManualPosition
 {
@@ -86,12 +87,17 @@ private:
 	bool _tofMeasureOk {false};
 	float _tofAvgDistance {0.0f};
 
+	float _tof_yaw{0};
+	float _tof_pitch{0};
+
 	float _avgDist{0};
 	bool wasNearWall{false};
-	bool approachOnlyOnce{false};
+	
+	bool _pushing_setpoint_saved{true};
+	matrix::Vector3f _pushing_position_setpoint;
 
-	// todo: debug and logging stuff
-	// ...
+	struct debug_array_s _log_tool_data;
+	uORB::Publication<debug_array_s> _log_tool_data_pub{ORB_ID(debug_array)};
 
 
 	enum class LamaState : uint8_t{ 
@@ -107,7 +113,10 @@ private:
 		(ParamFloat<px4::params::APPR_MAX_VEL>)			_param_approach_max_vel,
 		(ParamFloat<px4::params::APPR_EPS>) 			_param_approach_eps,
 		(ParamFloat<px4::params::TOF_MAX_DIST>) 		_param_tof_max_dist,
-		(ParamFloat<px4::params::TOF_D_OFFSET>) 		_param_tof_d_offset
+		(ParamFloat<px4::params::TOF_D_OFFSET>) 		_param_tof_d_offset,
+		(ParamBool<px4::params::APPR_SEND_POS_SP>)		_param_approach_send_pos_sp,
+		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>) 	_param_concrete_tool_y_dist,
+		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) 	_param_concrete_tool_z_dist
 	)
 
 };

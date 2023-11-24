@@ -84,15 +84,21 @@ bool FlightTaskLamaPosition::update(){
 
 	_handleStateTransitions();
 
-	// auto landing gear
+	// Auto landing gear
 	// ...
 
-	// log
-	// ...
+	
+	// Debug data on mavlink
+	for(int i=0; i<4; ++i)
+		_log_tool_data.data[i] = _tool_data.distance[i];
+	_log_tool_data.data[4] = _tool_data.force[0];
+	_log_tool_data.data[5] = _tool_data.torque[1];
+	_log_tool_data.data[6] = _tool_data.torque[2];
 
-	// debug data on mavlink
-	// ...
 
+
+
+	// State machine
 	switch(_currentState){
 		case LamaState::IDLE:
 			_idleMode();
@@ -117,7 +123,7 @@ bool FlightTaskLamaPosition::update(){
 	_lama_state.state = (uint8_t)_currentState;
 	_state_pub.publish(_lama_state);
 
-	// save last setpoint
+	// Save last setpoint
 	_prev_position_setpoint = _position_setpoint;
 
 	return true;
@@ -146,69 +152,92 @@ void FlightTaskLamaPosition::_readSensors(){
 				dist += _tool_data.distance[i];
 			_avgDist = dist / 4.0f;	// average distance read from tof sensors
 
-			//PX4_INFO("dist = %f", (double)_avgDist);
+			// Compute yaw and pitch
+			float left_mean = 0.5f*(_tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
+						_tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT]);
+
+			float right_mean = 0.5f*(_tool_data.distance[concrete_tool_data_s::TOP_RIGHT] +
+						_tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+
+			float bottom_mean = 0.5f*(_tool_data.distance[concrete_tool_data_s::BOTTOM_LEFT] +
+						_tool_data.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+
+			float top_mean = 0.5f*(_tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
+						_tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
+				
+			_tof_yaw = atan2(left_mean-right_mean,_param_concrete_tool_y_dist.get());
+			_tof_pitch = atan2(bottom_mean-top_mean, _param_concrete_tool_z_dist.get());
 		}
 	}
 }
 
 
 void FlightTaskLamaPosition::_idleMode(){
-	//PX4_INFO("[IDLE]");
-	Vector2f eps(0.25f, 0.0f);
-	Sticks::rotateIntoHeadingFrameXY(eps, _yaw, NAN);
 	_position_setpoint = _idle_position_setpoint;
-	_position_setpoint.xy() += eps;
 	_velocity_setpoint.setZero();
-	
 }
 
 void FlightTaskLamaPosition::_approachMode(){
-	if(!_tofMeasureOk){
-		PX4_ERR("Non dovresti essere qui");
+	if(!_tofMeasureOk && !wasNearWall){
+		PX4_ERR("Lost tof measure during approach");
 		return;
 	}
-
-	//PX4_INFO("\t[APPR]");
 
 	// Remove offset between tof sensors and contact surface
 	float dist = _avgDist - _param_tof_d_offset.get();
 
-	// Rotate d wrt body pitch
-	float d_x = dist * cos(_vehicle_attitude_setpoint.pitch_body);
-	float d_z = dist * sin(_vehicle_attitude_setpoint.pitch_body);
-
-	// Gains
-	float k = _param_approach_max_vel.get() / _param_tof_max_dist.get();
-	//float k_z = _param_approach_max_vel_z.get() / _param_tof_max_dist.get();
-
-	// Feedforward velocity setpoint
-	Vector2f vel_sp_xy (k * d_x, 0.0f);
-	Sticks::rotateIntoHeadingFrameXY(vel_sp_xy, _yaw, NAN);
-	_velocity_setpoint.xy() = vel_sp_xy;
-	_velocity_setpoint(2) = k * d_z;
-
-	// Position setpoints
-	Vector2f pos_sp_xy;
-	pos_sp_xy(0) = k * d_x * _deltatime;
-	pos_sp_xy(1) = 0.0f;		// y constant
-	Sticks::rotateIntoHeadingFrameXY(pos_sp_xy, _yaw, NAN);
-
-	//_position_setpoint.xy() += pos_sp_xy;	// first_pose inutile?
-	_position_setpoint(0) = NAN;
-	_position_setpoint(1) = NAN;
-	_position_setpoint(2) = _prev_position_setpoint(2) - _velocity_setpoint(2) * _deltatime;
-
-	if(_avgDist < 0.05f){
-		wasNearWall = true;
-		//PX4_WARN("wasNearWall = true!");
-	}else if(_avgDist > 0.5f){
-		wasNearWall = false;
-		//PX4_WARN("wasNearWall = false!");
+	// Push towards the wall waiting for interaction phase
+	if(!_tofMeasureOk || dist < 0.05f){
+		_pushing_setpoint_saved = false;
+		Vector2f eps(_param_approach_eps.get(), 0.0f);
+		Sticks::rotateIntoHeadingFrameXY(eps, _yaw, NAN);
+		_position_setpoint = _pushing_position_setpoint;
+		_position_setpoint.xy() += eps;
+		_velocity_setpoint.setZero();	
 	}
-	
-	//PX4_INFO("v_sp:%3.3f dx_sp:%3.3f\t=>\tvx_sp:%3.3f\tvy_sp:%3.3f; x_sp:%3.3f\ty_sp:%3.3f",
-	//	(double)(k_x * d_x), (double)(k_x*d_x*_deltatime), (double)vel_sp_xy(0), (double)vel_sp_xy(1), (double)_position_setpoint(0), (double)_position_setpoint(1));
-	
+
+	// Approach the wall
+	else {
+
+		// Rotate d wrt body pitch
+		float d_x = dist * cos(_vehicle_attitude_setpoint.pitch_body);
+		float d_z = dist * sin(_vehicle_attitude_setpoint.pitch_body);
+
+		// Gains
+		float k = _param_approach_max_vel.get() / _param_tof_max_dist.get();
+
+		// Feedforward velocity setpoint
+		Vector2f vel_sp_xy (k * d_x, 0.0f);
+		Sticks::rotateIntoHeadingFrameXY(vel_sp_xy, _yaw, NAN);
+		_velocity_setpoint.xy() = vel_sp_xy;
+		_velocity_setpoint(2) = k * d_z;
+
+		// Position setpoints
+		Vector2f pos_sp_xy;
+		pos_sp_xy(0) = k * d_x * _deltatime;
+		pos_sp_xy(1) = 0.0f;		// y constant
+		Sticks::rotateIntoHeadingFrameXY(pos_sp_xy, _yaw, NAN);
+
+		
+		if(_param_approach_send_pos_sp.get()){
+			_position_setpoint(0) = _prev_position_setpoint(0) + _velocity_setpoint(0) * _deltatime;
+			_position_setpoint(1) = _prev_position_setpoint(1) + _velocity_setpoint(1) * _deltatime;
+		}else{
+			_position_setpoint(0) = NAN;
+			_position_setpoint(1) = NAN;
+		}
+		_position_setpoint(2) = _prev_position_setpoint(2) - _velocity_setpoint(2) * _deltatime;
+	}
+
+	if(_pushing_setpoint_saved)
+		_pushing_position_setpoint = _position_setpoint;
+
+
+
+	if(_avgDist < 0.1f)
+		wasNearWall = true;
+	else if(_avgDist > 0.3f && _avgDist < 0.4f)
+		wasNearWall = false;
 }
 
 void FlightTaskLamaPosition::_interactionMode(){
@@ -225,32 +254,30 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 	switch(_currentState){
 
 		case LamaState::IDLE:
-			// switch to approach if yaw and pitch error is less than threshold
-			//if(_approaching_activation.active_approach)
-			if(!approachOnlyOnce && !wasNearWall && _tofMeasureOk && _avgDist <= 1.8f){
+			// Switch to approach if angle error ok and pitch sticks completely on
+			if(/*_lama_state.engage_approach &&*/ _sticks.getPitch() > 0.75f){
 				PX4_WARN("Switch into approach");
 				_currentState = LamaState::APPROACH;
-				approachOnlyOnce = true;
 			}
 			break;
 
 
 		case LamaState::APPROACH:
 			// switch back to idle if active_approach is false
-			if(!_tofMeasureOk){
+			if(!_tofMeasureOk && !wasNearWall){
 				_currentState = LamaState::IDLE;
 				_idle_position_setpoint = _position;
-				PX4_WARN("SWITCH IN IDLE:\t%3.3f\t%3.3f\t%3.3f", (double)_idle_position_setpoint(0), (double)_idle_position_setpoint(1), (double)_idle_position_setpoint(2));
-			}else if(wasNearWall && _avgDist > 0.1f){
+				PX4_WARN("Switch into IDLE");
+			}
+			else if (_lama_state.engage_interaction){
+				PX4_WARN("Switch into interaction");
+				_currentState = LamaState::INTERACTION;
+			}
+			else if(wasNearWall && _avgDist > 0.25f){	// wasNearWall simulation-only
 				PX4_WARN("MOVING! BACK TO IDLE");
 				_currentState = LamaState::IDLE;
 			}
 			
-			//if(!_approaching_activation.active_approach)
-			//	_currentState = LamaState::IDLE;
-			// switch to interaction if ...
-			//else if(...)
-			//	_currentState = LamaState::INTERACTION;
 			break;
 		
 

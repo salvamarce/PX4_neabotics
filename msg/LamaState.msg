@@ -3,11 +3,12 @@
 uint64 timestamp
 
 # states values
-uint8 APPROACH	   = 0
-uint8 INTERACTION  = 1
-uint8 DISAPPROACH  = 2
+uint8 IDLE         = 0
+uint8 APPROACH	   = 1
+uint8 INTERACTION  = 2
+uint8 DISAPPROACH  = 3
 
 uint8 state
-bool interaction_enable
-bool interaction_output
+bool engage_approach
+bool engage_interaction
 

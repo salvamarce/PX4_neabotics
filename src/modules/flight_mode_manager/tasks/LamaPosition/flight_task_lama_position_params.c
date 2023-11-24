@@ -1,4 +1,16 @@
 /**
+ * Send position setpoint during approach.
+ * 
+ * If enabled, during the approach phase both velocity and position setpoints
+ * are sent. Otherwise, position is not controlled and only velocity setpoints
+ * are used.
+ *
+ * @boolean
+ * @group Lama
+ */
+PARAM_DEFINE_INT32(APPR_SEND_POS_SP, 0);
+
+/**
  * Maximum approach velocity
  *
  * @unit m/s
@@ -19,7 +31,7 @@ PARAM_DEFINE_FLOAT(APPR_MAX_VEL, 0.3f);
  * @decimal 3
  * @group Lama
  */
-PARAM_DEFINE_FLOAT(APPR_EPS, 0.3f);
+PARAM_DEFINE_FLOAT(APPR_EPS, 0.25f);
 
 /**
  * Maximum distance that can be read by tof sensors.
