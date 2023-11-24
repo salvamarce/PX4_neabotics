@@ -435,7 +435,7 @@ MulticopterAttitudeControl::Run()
 					if( fabs(_yaw_lama_sp) < _param_min_lama_yaw.get() && fabs(_pitch_lama_sp)< _param_min_lama_pitch.get() ){
 
 						if(lama_state.state == lama_state_s::IDLE){
-							if( 1e-6f*(hrt_absolute_time() - _lama_approach_time) > 2.0f){
+							if( 1e-6f*(hrt_absolute_time() - _lama_approach_time) > _param_approach_enable_delay.get()){
 								lama_state.engage_approach = true;
 
 								//PX4_WARN("Approach ok");

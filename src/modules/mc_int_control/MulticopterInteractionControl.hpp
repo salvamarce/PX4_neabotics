@@ -53,7 +53,7 @@
 #include <uORB/topics/lama_state.h>
 #include <geo/geo.h>
 
-#define THRUST_Z_MAX 2.0f*9.5f*CONSTANTS_ONE_G
+#define THRUST_Z_MAX 2.0f*2.5f*CONSTANTS_ONE_G
 
 using namespace time_literals;
 
@@ -123,12 +123,13 @@ private:
 
 	// Parameters
 	DEFINE_PARAMETERS(
-		(ParamFloat<px4::params::LAMA_FORCE_SP>)  _param_lama_force_sp,   /** Force setpoint for interaction */
-		(ParamFloat<px4::params::LAMA_FORCE_KP>)  _param_lama_force_Kp,   /** Force control proportional gain */
-		(ParamFloat<px4::params::LAMA_FORCE_KI>)  _param_lama_force_Ki,   /** Force control proportional gain */
-		(ParamFloat<px4::params::LAMA_MIN_FORCE>) _param_lama_min_int_force, /** Minimum force value to start the control */
-		(ParamFloat<px4::params::LAMA_LIMIT_INT>) _param_limit_integral_error, /** Upper and lower limit for integral force error*/
-		(ParamFloat<px4::params::LAMA_MIN_INT_F>) _param_min_int_force /** Minimum desired force to start the interaction*/
+		(ParamFloat<px4::params::LAMA_FORCE_SP>)   _param_lama_force_sp,   /** Force setpoint for interaction */
+		(ParamFloat<px4::params::LAMA_FORCE_KP>)   _param_lama_force_Kp,   /** Force control proportional gain */
+		(ParamFloat<px4::params::LAMA_FORCE_KI>)   _param_lama_force_Ki,   /** Force control proportional gain */
+		(ParamFloat<px4::params::LAMA_MIN_FORCE>)  _param_lama_min_int_force, /** Minimum force value to start the control */
+		(ParamFloat<px4::params::LAMA_LIMIT_INT>)  _param_limit_integral_error, /** Upper and lower limit for integral force error*/
+		(ParamFloat<px4::params::APPR_PUSH_FORCE>) _param_min_int_force, /** Minimum desired force to start the interaction*/
+		(ParamFloat<px4::params::INT_EN_DELAY>) _param_interaction_enable_delay
 	)
 
 };

@@ -115,6 +115,16 @@ PARAM_DEFINE_FLOAT(LAMA_LIMIT_INT, 15.0f);
  */
 PARAM_DEFINE_FLOAT(LAMA_MIN_INT_F, 0.5f);
 
+/**
+ * Delay to enable interaction control after push
+ *
+ * @min 0.0
+ * @max 10.0
+ * @decimal 2
+ * @increment 0.01
+ * @group LAMA
+ */
+PARAM_DEFINE_FLOAT(INT_EN_DELAY, 0.001f);
 
 
 

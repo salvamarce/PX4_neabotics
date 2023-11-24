@@ -175,13 +175,17 @@ void MulticopterInteractionControl::Run()
 					_servo_setpoint_pub.publish(servo_sp);
 
 					if(lama_state.state == lama_state_s::APPROACH){
-						PX4_INFO("fx: %3.4f", (double)fx);
-						if(1e-6f*(hrt_absolute_time()-_last_interaction_time) > 2.0f && fabs(concrete_tool_data.force[0])>_param_min_int_force.get()){
-							lama_state.engage_interaction = true;
+						if(fabs(concrete_tool_data.force[0])>_param_min_int_force.get()){
+							// PX4_INFO("dentro");
 
-							PX4_WARN("Interaction ok");
+							if(1e-6f*(hrt_absolute_time()-_last_interaction_time) > _param_interaction_enable_delay.get()){
+								lama_state.engage_interaction = true;
+
+								PX4_WARN("Interaction ok");
+							}
 						}
 						else{
+							// PX4_INFO("fuori");
 							_last_interaction_time = hrt_absolute_time();
 						}
 					}
