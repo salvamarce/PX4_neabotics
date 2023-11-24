@@ -1,8 +1,8 @@
 # Messages from the lama tool
 uint64 timestamp
 
-# uint64 timestamp_distance
-# uint64 timestamp_force
+uint64 timestamp_tof
+uint64 timestamp_load
 
 # Load sensors
 float32[3] force
