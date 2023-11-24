@@ -50,7 +50,10 @@
 #include <uORB/topics/vehicle_rates_setpoint.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_control_mode.h>
+#include <uORB/topics/lama_state.h>
+#include <geo/geo.h>
 
+#define THRUST_Z_MAX 2.0f*9.5f*CONSTANTS_ONE_G
 
 using namespace time_literals;
 
@@ -86,19 +89,26 @@ private:
 	void parameters_updated();
 
 	// Publications
-	uORB::Publication<vehicle_rates_setpoint_s> _thrust_sp_pub{ORB_ID(interaction_rates_setpoint)};
-	uORB::Publication<tilting_servo_sp_s> _servo_sp_pub{ORB_ID(interaction_servo_setpoint)};
+	uORB::Publication<vehicle_rates_setpoint_s> _thrust_setpoint_pub{ORB_ID(interaction_rates_setpoint)};
+	uORB::Publication<tilting_servo_sp_s> _servo_setpoint_pub{ORB_ID(interaction_servo_setpoint)};
+	uORB::Publication<lama_state_s> _lama_state_pub{ORB_ID(lama_state)};
 
 	// Subscriptions
 	// The frequency of this module will be given by the force feedback
 	uORB::SubscriptionCallbackWorkItem _concrete_tool_sub{this, ORB_ID(concrete_tool_data)}; // subscription that schedules MulticopterInteractionControl when updated
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s}; // subscription limited to 1 Hz updates
 	uORB::Subscription _attitude_setpoint_sub{ORB_ID(vehicle_attitude_setpoint)};
-	uORB::Subscription _vehicle_control_mode_sub{ORB_ID(vehicle_control_mode)};
+	uORB::Subscription _control_mode_sub{ORB_ID(vehicle_control_mode)};
+	uORB::Subscription _rates_setpoint_sub{ORB_ID(vehicle_rates_setpoint)};
+	uORB::Subscription _servo_setpoint_sub{ORB_ID(tilting_servo_setpoint)};
 
 	perf_counter_t  _loop_perf;             /**< loop duration performance counter */
 
-	vehicle_control_mode_s _vehicle_control_mode;
+	vehicle_control_mode_s _control_mode;
+	vehicle_attitude_setpoint_s _attitude_setpoint;
+	vehicle_rates_setpoint_s _rates_setpoint;
+	tilting_servo_sp_s _attitude_servo_sp;
+	lama_state_s _lama_state;
 
 	hrt_abstime _last_concrete_tool_data_time{0};
 
@@ -106,13 +116,17 @@ private:
 	float _force_int;
 	float _Kp_gain, _Ki_gain;
 	float _min_interaction_force;
+	float _limit_integral_error;
+	matrix::Vector3f _old_f_sp;
+	matrix::Matrix3f _R_b;
 
 	// Parameters
 	DEFINE_PARAMETERS(
-		(ParamFloat<px4::params::LAMA_FORCE_SP>) _param_lama_force_sp,   /** Force setpoint for interaction */
-		(ParamFloat<px4::params::LAMA_FORCE_KP>) _param_lama_force_Kp,   /** Force control proportional gain */
-		(ParamFloat<px4::params::LAMA_FORCE_KI>) _param_lama_force_Ki,   /** Force control proportional gain */
-		(ParamFloat<px4::params::LAMA_MIN_FORCE>) _param_lama_min_int_force /** Minimum force value to start the control */
+		(ParamFloat<px4::params::LAMA_FORCE_SP>)  _param_lama_force_sp,   /** Force setpoint for interaction */
+		(ParamFloat<px4::params::LAMA_FORCE_KP>)  _param_lama_force_Kp,   /** Force control proportional gain */
+		(ParamFloat<px4::params::LAMA_FORCE_KI>)  _param_lama_force_Ki,   /** Force control proportional gain */
+		(ParamFloat<px4::params::LAMA_MIN_FORCE>) _param_lama_min_int_force, /** Minimum force value to start the control */
+		(ParamFloat<px4::params::LAMA_LIMIT_INT>) _param_limit_integral_error /** Upper and lower limit for integral force error*/
 	)
 
 };

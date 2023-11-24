@@ -44,12 +44,12 @@
  * Force setpoint for the interaction control.
  *
  * @min 0.0
- * @max 5.0
+ * @max 25.0
  * @decimal 2
  * @increment 0.01
  * @group LAMA
  */
-PARAM_DEFINE_FLOAT(LAMA_FORCE_SP, 1.0f);
+PARAM_DEFINE_FLOAT(LAMA_FORCE_SP, 15.0f);
 
 /**
  * Kp force control gain
@@ -57,12 +57,12 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_SP, 1.0f);
  * Force control proportional gain.
  *
  * @min 0.0
- * @max 5.0
+ * @max 10.0
  * @decimal 2
  * @increment 0.01
  * @group LAMA
  */
-PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 1.0f);
+PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 3.0f);
 
 /**
  * Ki force control gain
@@ -75,7 +75,7 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 1.0f);
  * @increment 0.01
  * @group LAMA
  */
-PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 1.0f);
+PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 0.1f);
 
 /**
  * Minimum interaction force measure
@@ -83,13 +83,25 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 1.0f);
  * Minimum force value of the measured force to start the interaction controller
  *
  * @min 0.0
- * @max 5.0
+ * @max 20.0
  * @decimal 2
  * @increment 0.01
  * @group LAMA
  */
-PARAM_DEFINE_FLOAT(LAMA_MIN_FORCE, 1.0f);
+PARAM_DEFINE_FLOAT(LAMA_MIN_FORCE, 5.0f);
 
+/**
+ * Integral force error limit
+ *
+ * Upper and lower limit for integral force error of the interaction controller
+ *
+ * @min 0.0
+ * @max 25.0
+ * @decimal 2
+ * @increment 0.01
+ * @group LAMA
+ */
+PARAM_DEFINE_FLOAT(LAMA_LIMIT_INT, 15.0f);
 
 
 
