@@ -79,6 +79,12 @@ bool FlightTaskLamaPosition::update(){
 			_approaching_activation = approaching_activation;
 	}
 
+	// reset sticks setpoint
+	_position_setpoint.setNaN();
+	_velocity_setpoint.setZero();
+	_acceleration_setpoint.setZero();
+	_yaw_setpoint = NAN;
+	_yawspeed_setpoint = 0;
 
 	_readSensors();
 
@@ -94,8 +100,6 @@ bool FlightTaskLamaPosition::update(){
 	_log_tool_data.data[4] = _tool_data.force[0];
 	_log_tool_data.data[5] = _tool_data.torque[1];
 	_log_tool_data.data[6] = _tool_data.torque[2];
-
-
 
 
 	// State machine
@@ -178,6 +182,10 @@ void FlightTaskLamaPosition::_idleMode(){
 }
 
 void FlightTaskLamaPosition::_approachMode(){
+	// Used to ignore sticks command in all cases
+	_position_setpoint = _prev_position_setpoint;
+	_velocity_setpoint.setZero();
+
 	if(!_tofMeasureOk && !wasNearWall){
 		PX4_ERR("Lost tof measure during approach");
 		return;
@@ -233,7 +241,6 @@ void FlightTaskLamaPosition::_approachMode(){
 		_pushing_position_setpoint = _position_setpoint;
 
 
-
 	if(_avgDist < 0.1f)
 		wasNearWall = true;
 	else if(_avgDist > 0.3f && _avgDist < 0.4f)
@@ -255,7 +262,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 
 		case LamaState::IDLE:
 			// Switch to approach if angle error ok and pitch sticks completely on
-			if(/*_lama_state.engage_approach &&*/ _sticks.getPitch() > 0.75f){
+			if(_tofMeasureOk && _lama_state.engage_approach && _sticks.getPitch() > 0.75f){
 				PX4_WARN("Switch into approach");
 				_currentState = LamaState::APPROACH;
 			}
@@ -267,7 +274,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 			if(!_tofMeasureOk && !wasNearWall){
 				_currentState = LamaState::IDLE;
 				_idle_position_setpoint = _position;
-				PX4_WARN("Switch into IDLE");
+				PX4_WARN("Switch into idle");
 			}
 			else if (_lama_state.engage_interaction){
 				PX4_WARN("Switch into interaction");
