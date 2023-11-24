@@ -438,7 +438,7 @@ MulticopterAttitudeControl::Run()
 							if( 1e-6f*(hrt_absolute_time() - _lama_approach_time) > 2.0f){
 								lama_state.engage_approach = true;
 
-								PX4_WARN("Approach ok");
+								//PX4_WARN("Approach ok");
 							}
 						}
 

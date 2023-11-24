@@ -54,6 +54,7 @@ bool FlightTaskLamaPosition::activate(const trajectory_setpoint_s &last_setpoint
 	_first_position_setpoint = last_setpoint;
 	_prev_position_setpoint = Vector3f(_first_position_setpoint.position);
 	_idle_position_setpoint = _prev_position_setpoint;
+
 	bool ret = FlightTaskManualPosition::activate(last_setpoint);
 	return ret;
 }
@@ -81,8 +82,8 @@ bool FlightTaskLamaPosition::update(){
 
 	// reset sticks setpoint
 	_position_setpoint.setNaN();
-	_velocity_setpoint.setZero();
-	_acceleration_setpoint.setZero();
+	_velocity_setpoint.setNaN();
+	_acceleration_setpoint.setNaN();
 	_yaw_setpoint = NAN;
 	_yawspeed_setpoint = 0;
 
@@ -194,14 +195,18 @@ void FlightTaskLamaPosition::_approachMode(){
 	// Remove offset between tof sensors and contact surface
 	float dist = _avgDist - _param_tof_d_offset.get();
 
+	_pushing_setpoint_saved = true;
 	// Push towards the wall waiting for interaction phase
-	if(!_tofMeasureOk || dist < 0.05f){
+	if(!_tofMeasureOk || dist < 0.02f){
+		//PX4_INFO("pushing");
 		_pushing_setpoint_saved = false;
-		Vector2f eps(_param_approach_eps.get(), 0.0f);
+		Vector2f eps(_param_approach_x_push_acceleration.get(), 0.0f);
 		Sticks::rotateIntoHeadingFrameXY(eps, _yaw, NAN);
-		_position_setpoint = _pushing_position_setpoint;
+		/*_position_setpoint = _pushing_position_setpoint;
 		_position_setpoint.xy() += eps;
-		_velocity_setpoint.setZero();	
+		_velocity_setpoint.setZero();	*/
+		_position_setpoint = _position;
+		_acceleration_setpoint.xy() = eps;
 	}
 
 	// Approach the wall
@@ -248,7 +253,7 @@ void FlightTaskLamaPosition::_approachMode(){
 }
 
 void FlightTaskLamaPosition::_interactionMode(){
-	
+	_position_setpoint(1) = _prev_position_setpoint(1);
 }
 
 void FlightTaskLamaPosition::_leavingMode(){
@@ -289,6 +294,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 		
 
 		case LamaState::INTERACTION:
+			// when sti
 			break;
 		
 
