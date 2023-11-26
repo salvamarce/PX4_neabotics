@@ -87,3 +87,11 @@ if param compare CA_AIRFRAME 13
 then
 	mc_int_control start
 fi
+
+#*** CUSTOM **#
+#
+# Start mbedi2c driver
+if param compare MBEDI2C_ENABLE 1
+then
+mbedi2c start -X -b 4 -a $MBEDI2C_SLV_ADDR #0x25 #change this with param MBEDI2C_SLV_ADDR
+fi

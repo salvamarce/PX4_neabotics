@@ -1,0 +1,5 @@
+menuconfig DRIVERS_MBEDI2C
+	bool "mbedi2c"
+	default n
+	---help---
+		Enable mbedi2c drivers

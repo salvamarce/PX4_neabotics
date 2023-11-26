@@ -235,6 +235,7 @@ set(msg_files
 	LamaState.msg
 	ConcreteToolData.msg
 	ApproachingActivation.msg
+	FtResetBiasRequest.msg
 	#*** END-CUSTOM
 
 )
