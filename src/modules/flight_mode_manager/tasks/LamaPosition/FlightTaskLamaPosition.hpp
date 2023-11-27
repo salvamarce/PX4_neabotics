@@ -83,6 +83,7 @@ private:
 	trajectory_setpoint_s _first_position_setpoint;
 	matrix::Vector3f _prev_position_setpoint;
 	matrix::Vector3f _idle_position_setpoint;
+	matrix::Vector3f _interaction_position_setpoint;
 
 	bool _tofMeasureOk {false};
 	float _tofAvgDistance {0.0f};
@@ -111,7 +112,8 @@ private:
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::APPR_MAX_VEL>)			_param_approach_max_vel,
-		(ParamFloat<px4::params::APPR_PUSH_FORCE>) 		_param_approach_push_force,
+		(ParamFloat<px4::params::LAMA_FORCE_SP>) 		_param_interaction_push_force,
+		(ParamFloat<px4::params::LAMA_FORCE_EPS>) 		_param_interaction_force_eps,
 		(ParamFloat<px4::params::TOF_MAX_DIST>) 		_param_tof_max_dist,
 		(ParamFloat<px4::params::TOF_D_OFFSET>) 		_param_tof_d_offset,
 		(ParamBool<px4::params::APPR_SEND_POS_SP>)		_param_approach_send_pos_sp,

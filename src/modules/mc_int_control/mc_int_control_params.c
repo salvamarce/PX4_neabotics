@@ -47,9 +47,21 @@
  * @max 100.0
  * @decimal 2
  * @increment 0.01
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(LAMA_FORCE_SP, 15.0f);
+
+
+/**
+ * Difference between interaction force setpoint and interaction activation setpoint
+ *
+ * @min 0.0
+ * @max 100.0
+ * @decimal 2
+ * @increment 0.01
+ * @group Lama
+ */
+PARAM_DEFINE_FLOAT(LAMA_FORCE_EPS, 5.0f);
 
 /**
  * Kp force control gain
@@ -60,7 +72,7 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_SP, 15.0f);
  * @max 10.0
  * @decimal 3
  * @increment 0.001
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 1.0f);
 
@@ -73,7 +85,7 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 1.0f);
  * @max 5.0
  * @decimal 3
  * @increment 0.001
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 0.001f);
 
@@ -86,7 +98,7 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 0.001f);
  * @max 20.0
  * @decimal 2
  * @increment 0.01
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(LAMA_MIN_FORCE, 2.0f);
 
@@ -99,7 +111,7 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_FORCE, 2.0f);
  * @max 25.0
  * @decimal 2
  * @increment 0.01
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(LAMA_LIMIT_INT, 15.0f);
 
@@ -111,7 +123,7 @@ PARAM_DEFINE_FLOAT(LAMA_LIMIT_INT, 15.0f);
  * @max 10.0
  * @decimal 3
  * @increment 0.001
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(LAMA_MIN_INT_F, 0.5f);
 
@@ -122,7 +134,7 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_INT_F, 0.5f);
  * @max 10.0
  * @decimal 2
  * @increment 0.01
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(INT_EN_DELAY, 0.001f);
 

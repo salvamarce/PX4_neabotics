@@ -20,17 +20,6 @@ PARAM_DEFINE_INT32(APPR_SEND_POS_SP, 0);
 PARAM_DEFINE_FLOAT(APPR_MAX_VEL, 0.6f);
 
 /**
- * Force value for acceleration setpoint during the transition between approach and interaction
- *
- * @unit N
- * @min 1.0
- * @max 50.0
- * @decimal 2
- * @group Lama
- */
-PARAM_DEFINE_FLOAT(APPR_PUSH_FORCE, 10.0f);
-
-/**
  * Maximum distance that can be read by tof sensors.
  *
  * It is advisable to set this parameter a little lower than the real

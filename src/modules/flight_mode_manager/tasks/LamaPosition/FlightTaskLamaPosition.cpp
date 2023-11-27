@@ -200,7 +200,7 @@ void FlightTaskLamaPosition::_approachMode(){
 	if(!_tofMeasureOk || dist < 0.02f){
 		//PX4_INFO("pushing");
 		_pushing_setpoint_saved = false;
-		Vector2f eps(_param_approach_push_force.get()/7.0f, 0.0f);
+		Vector2f eps((_param_interaction_push_force.get() - _param_interaction_force_eps.get())/9.8f, 0.0f);
 		Sticks::rotateIntoHeadingFrameXY(eps, _yaw, NAN);
 		/*_position_setpoint = _pushing_position_setpoint;
 		_position_setpoint.xy() += eps;
@@ -253,7 +253,7 @@ void FlightTaskLamaPosition::_approachMode(){
 }
 
 void FlightTaskLamaPosition::_interactionMode(){
-	_position_setpoint = _position;
+	_position_setpoint = _interaction_position_setpoint;
 	_velocity_setpoint.setZero();
 }
 
@@ -284,6 +284,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 			}
 			else if (_lama_state.engage_interaction){
 				PX4_WARN("Switch into interaction");
+				_interaction_position_setpoint = _position;
 				_currentState = LamaState::INTERACTION;
 			}
 			else if(wasNearWall && _avgDist > 0.25f){	// wasNearWall simulation-only
