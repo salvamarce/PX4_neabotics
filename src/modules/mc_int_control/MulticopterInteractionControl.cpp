@@ -156,13 +156,13 @@ void MulticopterInteractionControl::Run()
 
 					float fz = _old_f_sp(2) + delta_f * cosf(servo_angle);
 
-					// PX4_INFO("fx, fz, servo: \t %3.3f \t %3.3f \t %3.3f", (double)fx, (double)fz, (double)math::degrees(servo_angle));
+					PX4_INFO("fz, max, servo: \t %3.3f \t %3.3f \t %3.3f", (double)(2.0f*2.5f*CONSTANTS_ONE_G), (double)(fz/(2.0f*2.5f*CONSTANTS_ONE_G)), (double)math::degrees(servo_angle));
 
 					vehicle_rates_setpoint_s rates_sp;
 
 					rates_sp = _rates_setpoint;
 					rates_sp.timestamp = hrt_absolute_time();
-					rates_sp.thrust_body[2] = -fz;
+					rates_sp.thrust_body[2] = -fz/(THRUST_Z_MAX);
 
 					tilting_servo_sp_s servo_sp;
 					servo_sp.timestamp = hrt_absolute_time();
