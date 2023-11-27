@@ -92,7 +92,7 @@ private:
 
 	float _avgDist{0};
 	bool wasNearWall{false};
-	
+
 	bool _pushing_setpoint_saved{true};
 	matrix::Vector3f _pushing_position_setpoint;
 
@@ -100,7 +100,7 @@ private:
 	uORB::Publication<debug_array_s> _log_tool_data_pub{ORB_ID(debug_array)};
 
 
-	enum class LamaState : uint8_t{ 
+	enum class LamaState : uint8_t{
 		IDLE = 0,
 		APPROACH = 1,
 		INTERACTION = 2,
@@ -111,7 +111,7 @@ private:
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::APPR_MAX_VEL>)			_param_approach_max_vel,
-		(ParamFloat<px4::params::APPR_X_PUSH_ACC>) 		_param_approach_x_push_acceleration,
+		(ParamFloat<px4::params::APPR_PUSH_FORCE>) 		_param_approach_push_force,
 		(ParamFloat<px4::params::TOF_MAX_DIST>) 		_param_tof_max_dist,
 		(ParamFloat<px4::params::TOF_D_OFFSET>) 		_param_tof_d_offset,
 		(ParamBool<px4::params::APPR_SEND_POS_SP>)		_param_approach_send_pos_sp,

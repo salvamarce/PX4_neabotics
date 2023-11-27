@@ -44,7 +44,7 @@
  * Force setpoint for the interaction control.
  *
  * @min 0.0
- * @max 25.0
+ * @max 100.0
  * @decimal 2
  * @increment 0.01
  * @group LAMA
@@ -58,11 +58,11 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_SP, 15.0f);
  *
  * @min 0.0
  * @max 10.0
- * @decimal 2
- * @increment 0.01
+ * @decimal 3
+ * @increment 0.001
  * @group LAMA
  */
-PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 3.0f);
+PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 1.0f);
 
 /**
  * Ki force control gain
@@ -71,11 +71,11 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_KP, 3.0f);
  *
  * @min 0.0
  * @max 5.0
- * @decimal 2
- * @increment 0.01
+ * @decimal 3
+ * @increment 0.001
  * @group LAMA
  */
-PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 0.1f);
+PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 0.001f);
 
 /**
  * Minimum interaction force measure
@@ -88,7 +88,7 @@ PARAM_DEFINE_FLOAT(LAMA_FORCE_KI, 0.1f);
  * @increment 0.01
  * @group LAMA
  */
-PARAM_DEFINE_FLOAT(LAMA_MIN_FORCE, 5.0f);
+PARAM_DEFINE_FLOAT(LAMA_MIN_FORCE, 2.0f);
 
 /**
  * Integral force error limit
@@ -115,6 +115,16 @@ PARAM_DEFINE_FLOAT(LAMA_LIMIT_INT, 15.0f);
  */
 PARAM_DEFINE_FLOAT(LAMA_MIN_INT_F, 0.5f);
 
+/**
+ * Delay to enable interaction control after push
+ *
+ * @min 0.0
+ * @max 10.0
+ * @decimal 2
+ * @increment 0.01
+ * @group LAMA
+ */
+PARAM_DEFINE_FLOAT(INT_EN_DELAY, 0.001f);
 
 
 

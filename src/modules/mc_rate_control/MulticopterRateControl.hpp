@@ -63,6 +63,7 @@
 /*** CUSTOM ***/
 #include <uORB/topics/tilting_mc_desired_angles.h>
 #include <uORB/topics/tilting_servo_sp.h>
+#include <uORB/topics/lama_state.h>
 /*** END-CUSTOM ***/
 
 using namespace time_literals;
@@ -115,8 +116,14 @@ private:
 	uORB::Publication<vehicle_thrust_setpoint_s>	_vehicle_thrust_setpoint_pub;
 
 	/*** CUSTOM ***/
-	uORB::Publication<tilting_servo_sp_s>	_tilting_servo_pub{ORB_ID(tilting_servo_setpoint)};
+	uORB::Publication<tilting_servo_sp_s> _tilting_servo_pub{ORB_ID(tilting_servo_setpoint)};
+
 	uORB::Subscription _tilting_servo_sub{ORB_ID(tilting_servo_setpoint)};
+	uORB::Subscription _lama_state_sub{ORB_ID(lama_state)};
+	uORB::Subscription _rates_interaction_sub{ORB_ID(interaction_rates_setpoint)};
+	uORB::Subscription _servo_interaction_sub{ORB_ID(interaction_servo_setpoint)};
+
+	tilting_servo_sp_s _old_servo_sp;
 	/*** END-CUSTOM ***/
 
 	vehicle_control_mode_s	_vehicle_control_mode{};

@@ -119,7 +119,6 @@ MulticopterRateControl::Run()
 	}
 
 	/*** CUSTOM ***/
-	tilting_servo_sp_s old_servo_sp;
 	tilting_servo_sp_s new_servo_sp;
 	/*** END-CUSTOM ***/
 
@@ -255,10 +254,32 @@ MulticopterRateControl::Run()
 			}
 
 			if (_tilting_servo_sub.update(&new_servo_sp)){
-				old_servo_sp = new_servo_sp;
+				_old_servo_sp = new_servo_sp;
 			}
-			old_servo_sp.timestamp = hrt_absolute_time();
-			_tilting_servo_pub.publish(old_servo_sp);
+
+			lama_state_s lama_state;
+			_lama_state_sub.update(&lama_state);
+
+			if(lama_state.state == lama_state_s::INTERACTION){
+
+				if(_servo_interaction_sub.updated()){
+					tilting_servo_sp_s interaction_servo;
+
+					if(_servo_interaction_sub.copy(&interaction_servo))
+						_old_servo_sp = interaction_servo;
+				}
+
+				if(_rates_interaction_sub.updated()){
+					vehicle_rates_setpoint_s interaction_rates;
+
+					if(_rates_interaction_sub.copy(&interaction_rates))
+						vehicle_thrust_setpoint.xyz[2] = interaction_rates.thrust_body[2];
+				}
+
+			}
+
+			_old_servo_sp.timestamp = hrt_absolute_time();
+			_tilting_servo_pub.publish(_old_servo_sp);
 
 			vehicle_thrust_setpoint.timestamp_sample = angular_velocity.timestamp_sample;
 			vehicle_thrust_setpoint.timestamp = hrt_absolute_time();

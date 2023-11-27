@@ -208,7 +208,8 @@ private:
 		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>) _param_concrete_tool_y_dist,
 		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) _param_concrete_tool_z_dist,
 		(ParamFloat<px4::params::LAMA_MIN_YAW>)     _param_min_lama_yaw,
-		(ParamFloat<px4::params::LAMA_MIN_PITCH>)   _param_min_lama_pitch
+		(ParamFloat<px4::params::LAMA_MIN_PITCH>)   _param_min_lama_pitch,
+		(ParamFloat<px4::params::APPR_EN_DELAY>)    _param_approach_enable_delay
 		/*** END-CUSTOM ***/
 
 	)

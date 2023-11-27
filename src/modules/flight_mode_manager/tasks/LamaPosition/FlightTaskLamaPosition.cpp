@@ -76,7 +76,7 @@ bool FlightTaskLamaPosition::update(){
 		approaching_activation_s approaching_activation;
 		if (_approaching_activation_sub.copy(&approaching_activation)
 			    && (approaching_activation.timestamp > _approaching_activation.timestamp))
-			
+
 			_approaching_activation = approaching_activation;
 	}
 
@@ -94,7 +94,7 @@ bool FlightTaskLamaPosition::update(){
 	// Auto landing gear
 	// ...
 
-	
+
 	// Debug data on mavlink
 	for(int i=0; i<4; ++i)
 		_log_tool_data.data[i] = _tool_data.distance[i];
@@ -169,7 +169,7 @@ void FlightTaskLamaPosition::_readSensors(){
 
 			float top_mean = 0.5f*(_tool_data.distance[concrete_tool_data_s::TOP_LEFT] +
 						_tool_data.distance[concrete_tool_data_s::TOP_RIGHT]);
-				
+
 			_tof_yaw = atan2(left_mean-right_mean,_param_concrete_tool_y_dist.get());
 			_tof_pitch = atan2(bottom_mean-top_mean, _param_concrete_tool_z_dist.get());
 		}
@@ -200,7 +200,7 @@ void FlightTaskLamaPosition::_approachMode(){
 	if(!_tofMeasureOk || dist < 0.02f){
 		//PX4_INFO("pushing");
 		_pushing_setpoint_saved = false;
-		Vector2f eps(_param_approach_x_push_acceleration.get(), 0.0f);
+		Vector2f eps(_param_approach_push_force.get()/7.0f, 0.0f);
 		Sticks::rotateIntoHeadingFrameXY(eps, _yaw, NAN);
 		/*_position_setpoint = _pushing_position_setpoint;
 		_position_setpoint.xy() += eps;
@@ -231,7 +231,7 @@ void FlightTaskLamaPosition::_approachMode(){
 		pos_sp_xy(1) = 0.0f;		// y constant
 		Sticks::rotateIntoHeadingFrameXY(pos_sp_xy, _yaw, NAN);
 
-		
+
 		if(_param_approach_send_pos_sp.get()){
 			_position_setpoint(0) = _prev_position_setpoint(0) + _velocity_setpoint(0) * _deltatime;
 			_position_setpoint(1) = _prev_position_setpoint(1) + _velocity_setpoint(1) * _deltatime;
@@ -253,10 +253,12 @@ void FlightTaskLamaPosition::_approachMode(){
 }
 
 void FlightTaskLamaPosition::_interactionMode(){
-	; // ?
+	_position_setpoint = _position;
+	_velocity_setpoint.setZero();
 }
 
 void FlightTaskLamaPosition::_leavingMode(){
+
 }
 
 
@@ -288,9 +290,9 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 				PX4_WARN("MOVING! BACK TO IDLE");
 				_currentState = LamaState::IDLE;
 			}
-			
+
 			break;
-		
+
 
 		case LamaState::INTERACTION:
 			// when pitch stick down, disapproach
@@ -299,7 +301,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 				_currentState = LamaState::LEAVING;
 			}
 			break;
-		
+
 
 		case LamaState::LEAVING:
 			break;

@@ -226,4 +226,15 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_YAW, 0.026f);
 */
 PARAM_DEFINE_FLOAT(LAMA_MIN_PITCH, 0.026f);
 
+/**
+ * Delay to enable approach after positioning
+ *
+ * @min 0.0
+ * @max 10.0
+ * @decimal 2
+ * @increment 0.01
+ * @group LAMA
+ */
+PARAM_DEFINE_FLOAT(APPR_EN_DELAY, 2.0f);
+
 // *** END-CUSTOM ***
