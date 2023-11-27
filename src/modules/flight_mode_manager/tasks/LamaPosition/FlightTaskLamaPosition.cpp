@@ -253,11 +253,10 @@ void FlightTaskLamaPosition::_approachMode(){
 }
 
 void FlightTaskLamaPosition::_interactionMode(){
-	_position_setpoint(1) = _prev_position_setpoint(1);
+	; // ?
 }
 
 void FlightTaskLamaPosition::_leavingMode(){
-	
 }
 
 
@@ -266,7 +265,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 	switch(_currentState){
 
 		case LamaState::IDLE:
-			// Switch to approach if angle error ok and pitch sticks completely on
+			// Switch to approach if angle error ok and pitch sticks up
 			if(_tofMeasureOk && _lama_state.engage_approach && _sticks.getPitch() > 0.75f){
 				PX4_WARN("Switch into approach");
 				_currentState = LamaState::APPROACH;
@@ -294,7 +293,11 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 		
 
 		case LamaState::INTERACTION:
-			// when sti
+			// when pitch stick down, disapproach
+			if(_sticks.getPitch() < -0.75f){
+				PX4_WARN("Switch into disapproach");
+				_currentState = LamaState::LEAVING;
+			}
 			break;
 		
 
