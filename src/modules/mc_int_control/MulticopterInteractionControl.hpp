@@ -53,7 +53,7 @@
 #include <uORB/topics/lama_state.h>
 #include <geo/geo.h>
 
-#define THRUST_Z_MAX 2.0f*2.5f*CONSTANTS_ONE_G
+static constexpr float TRUST_Z_MAX = 2.0f*2.5f*CONSTANTS_ONE_G;
 
 using namespace time_literals;
 

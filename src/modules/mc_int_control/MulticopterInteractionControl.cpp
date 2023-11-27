@@ -156,7 +156,7 @@ void MulticopterInteractionControl::Run()
 
 					float fz = _old_f_sp(2) + delta_f * cosf(servo_angle);
 
-					PX4_INFO("fz, max, servo: \t %3.3f \t %3.3f \t %3.3f", (double)(2.0f*2.5f*CONSTANTS_ONE_G), (double)(fz/(2.0f*2.5f*CONSTANTS_ONE_G)), (double)math::degrees(servo_angle));
+					// PX4_INFO("fz, max, servo: \t %3.3f \t %3.3f \t %3.3f", (double)(2.0f*2.5f*CONSTANTS_ONE_G), (double)(fz/(2.0f*2.5f*CONSTANTS_ONE_G)), (double)math::degrees(servo_angle));
 
 					vehicle_rates_setpoint_s rates_sp;
 
@@ -181,7 +181,7 @@ void MulticopterInteractionControl::Run()
 							if(1e-6f*(hrt_absolute_time()-_last_interaction_time) > _param_interaction_enable_delay.get()){
 								lama_state.engage_interaction = true;
 
-								PX4_WARN("Interaction ok");
+								// PX4_WARN("Interaction ok");
 							}
 						}
 						else{
