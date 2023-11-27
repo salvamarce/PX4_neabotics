@@ -1219,6 +1219,7 @@ PARAM_DEFINE_FLOAT(EKF2_RNG_A_IGATE, 1.0f);
  *
  *
  * @group EKF2
+ * @decimal 1
  * @unit s
  * @min 0.1
  * @max 5

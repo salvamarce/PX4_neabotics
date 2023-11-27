@@ -59,8 +59,8 @@ PARAM_DEFINE_INT32(SENS_FLOW_ROT, 0);
  * @unit m
  * @min 0.0
  * @max 1.0
- * @increment 0.1
- * @decimal 1
+ * @increment 0.01
+ * @decimal 2
  * @group Sensor Calibration
  */
 PARAM_DEFINE_FLOAT(SENS_FLOW_MINHGT, 0.08f);
@@ -76,8 +76,8 @@ PARAM_DEFINE_FLOAT(SENS_FLOW_MINHGT, 0.08f);
  * @unit m
  * @min 1.0
  * @max 100.0
- * @increment 0.1
- * @decimal 1
+ * @increment 0.01
+ * @decimal 2
  * @group Sensor Calibration
  */
 PARAM_DEFINE_FLOAT(SENS_FLOW_MAXHGT, 100.f);
