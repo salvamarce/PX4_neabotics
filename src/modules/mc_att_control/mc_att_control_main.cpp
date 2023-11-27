@@ -387,8 +387,8 @@ MulticopterAttitudeControl::Run()
 
 				// To do: saturazione su yaw e pitch lama sp (valore in rad/s)
 				float elapsed_time = math::constrain(((hrt_absolute_time()  - _last_concrete_data_time) * 1e-6f), 0.0002f, 0.02f);
-				_yaw_lama_sp = atan2(left_mean-right_mean,_concrete_tool_y_dist) * elapsed_time;
-				_pitch_lama_sp = atan2(bottom_mean-top_mean, _concrete_tool_z_dist) * elapsed_time;
+				_yaw_lama_sp = atan2f(left_mean-right_mean,_concrete_tool_y_dist) * elapsed_time;
+				_pitch_lama_sp = atan2f(bottom_mean-top_mean, _concrete_tool_z_dist) * elapsed_time;
 
 				_last_concrete_data_time = tool_data.timestamp_tof;
 
@@ -432,7 +432,7 @@ MulticopterAttitudeControl::Run()
 
 					// If the lama_sp is minimum for 2 seconds, start approach
 					lama_state.engage_approach = false;
-					if( fabs(_yaw_lama_sp) < _param_min_lama_yaw.get() && fabs(_pitch_lama_sp)< _param_min_lama_pitch.get() ){
+					if( abs(_yaw_lama_sp) < _param_min_lama_yaw.get() && abs(_pitch_lama_sp)< _param_min_lama_pitch.get() ){
 
 						if(lama_state.state == lama_state_s::IDLE){
 							if( 1e-6f*(hrt_absolute_time() - _lama_approach_time) > _param_approach_enable_delay.get()){

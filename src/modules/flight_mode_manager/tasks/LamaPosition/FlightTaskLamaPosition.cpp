@@ -213,8 +213,8 @@ void FlightTaskLamaPosition::_approachMode(){
 	else {
 
 		// Rotate d wrt body pitch
-		float d_x = dist * cos(_vehicle_attitude_setpoint.pitch_body);
-		float d_z = dist * sin(_vehicle_attitude_setpoint.pitch_body);
+		float d_x = dist * cosf(_vehicle_attitude_setpoint.pitch_body);
+		float d_z = dist * sinf(_vehicle_attitude_setpoint.pitch_body);
 
 		// Gains
 		float k = _param_approach_max_vel.get() / _param_tof_max_dist.get();

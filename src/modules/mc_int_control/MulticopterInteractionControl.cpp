@@ -176,7 +176,7 @@ void MulticopterInteractionControl::Run()
 
 					if(lama_state.state == lama_state_s::APPROACH){
 						// Force slightly smaller than interaction_force and greater than the approach setpoint is expected
-						if(fabs(concrete_tool_data.force[0]) > _param_min_int_force.get() - 1.5f * _param_interaction_force_eps.get()){
+						if(abs(concrete_tool_data.force[0]) > _param_min_int_force.get() - 1.5f * _param_interaction_force_eps.get()){
 							// PX4_INFO("dentro");
 
 							if(1e-6f*(hrt_absolute_time()-_last_interaction_time) > _param_interaction_enable_delay.get()){
