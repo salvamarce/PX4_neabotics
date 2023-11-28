@@ -496,8 +496,13 @@ static const StreamListItem streams_list[] = {
 	create_stream_list_item<MavlinkStreamUavionixADSBOutCfg>(),
 #endif // UAVIONIX_ADSB_OUT_CFG_HPP
 #if defined(UAVIONIX_ADSB_OUT_DYNAMIC_HPP)
-	create_stream_list_item<MavlinkStreamUavionixADSBOutDynamic>()
+	create_stream_list_item<MavlinkStreamUavionixADSBOutDynamic>(), // *** CUSTOM ***
 #endif // UAVIONIX_ADSB_OUT_DYNAMIC_HPP
+/**** CUSTOM ****/
+#if defined(LAMA_STATE_HPP)
+	create_stream_list_item<MavlinkStreamLamaState>(), // *** CUSTOM ***
+#endif // LAMA_STATE_HPP
+/**** END-CUSTOM ****/
 };
 
 const char *get_stream_name(const uint16_t msg_id)
