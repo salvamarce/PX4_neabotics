@@ -18,7 +18,7 @@ public:
 
 	unsigned get_size() override
 	{
-		return _debug_sub.advertised() ? MAVLINK_MSG_ID_LAMA_STATE + MAVLINK_NUM_NON_PAYLOAD_BYTES : 0;
+		return _lama_sub.advertised() ? MAVLINK_MSG_ID_LAMA_STATE + MAVLINK_NUM_NON_PAYLOAD_BYTES : 0;
 	}
 
 private:

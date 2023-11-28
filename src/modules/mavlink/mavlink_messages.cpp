@@ -148,6 +148,10 @@
 # include "streams/UTM_GLOBAL_POSITION.hpp"
 #endif // !CONSTRAINED_FLASH
 
+/**** CUSTOM ****/
+#include "streams/LAMA_STATE.hpp"
+/**** END-CUSTOM ****/
+
 // ensure PX4 rotation enum and MAV_SENSOR_ROTATION align
 static_assert(MAV_SENSOR_ROTATION_NONE == static_cast<MAV_SENSOR_ORIENTATION>(ROTATION_NONE),
 	      "Roll: 0, Pitch: 0, Yaw: 0");
