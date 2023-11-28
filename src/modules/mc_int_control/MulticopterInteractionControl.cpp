@@ -192,8 +192,10 @@ void MulticopterInteractionControl::Run()
 					}
 
 				}
-				else
+				else{
 					_last_interaction_time = hrt_absolute_time();
+					resetIntegral();
+				}
 
 			}
 			lama_state.timestamp = hrt_absolute_time();

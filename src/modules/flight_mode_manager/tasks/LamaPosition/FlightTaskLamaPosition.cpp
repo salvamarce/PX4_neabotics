@@ -192,12 +192,9 @@ void FlightTaskLamaPosition::_approachMode(){
 		return;
 	}
 
-	// Remove offset between tof sensors and contact surface
-	float dist = _avgDist - _param_tof_d_offset.get();
-
 	_pushing_setpoint_saved = true;
 	// Push towards the wall waiting for interaction phase
-	if(!_tofMeasureOk || dist < 0.02f){
+	if(!_tofMeasureOk || _avgDist < 0.02f){
 		//PX4_INFO("pushing");
 		_pushing_setpoint_saved = false;
 		Vector2f eps((_param_interaction_push_force.get() - _param_interaction_force_eps.get())/9.8f, 0.0f);
@@ -213,8 +210,8 @@ void FlightTaskLamaPosition::_approachMode(){
 	else {
 
 		// Rotate d wrt body pitch
-		float d_x = dist * cosf(_vehicle_attitude_setpoint.pitch_body);
-		float d_z = dist * sinf(_vehicle_attitude_setpoint.pitch_body);
+		float d_x = _avgDist * cosf(_vehicle_attitude_setpoint.pitch_body);
+		float d_z = _avgDist * sinf(_vehicle_attitude_setpoint.pitch_body);
 
 		// Gains
 		float k = _param_approach_max_vel.get() / _param_tof_max_dist.get();

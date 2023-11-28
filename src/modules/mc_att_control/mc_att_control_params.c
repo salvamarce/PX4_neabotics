@@ -189,7 +189,7 @@ PARAM_DEFINE_FLOAT(MC_MAX_FXY, 0.15f);
  * @min 0.0
  * @max 5.0
  * @decimal 2
- * @group LAMA
+ * @group Lama
 */
 PARAM_DEFINE_FLOAT(CONC_TOOL_Y_DIST, 0.25f);
 
@@ -200,7 +200,7 @@ PARAM_DEFINE_FLOAT(CONC_TOOL_Y_DIST, 0.25f);
  * @min 0.0
  * @max 5.0
  * @decimal 2
- * @group LAMA
+ * @group Lama
 */
 PARAM_DEFINE_FLOAT(CONC_TOOL_Z_DIST, 1.0f);
 
@@ -211,7 +211,7 @@ PARAM_DEFINE_FLOAT(CONC_TOOL_Z_DIST, 1.0f);
  * @min 0.0
  * @max 1.0
  * @decimal 3
- * @group LAMA
+ * @group Lama
 */
 PARAM_DEFINE_FLOAT(LAMA_MIN_YAW, 0.026f);
 
@@ -222,7 +222,7 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_YAW, 0.026f);
  * @min 0.0
  * @max 1.0
  * @decimal 3
- * @group LAMA
+ * @group Lama
 */
 PARAM_DEFINE_FLOAT(LAMA_MIN_PITCH, 0.026f);
 
@@ -233,7 +233,7 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_PITCH, 0.026f);
  * @max 10.0
  * @decimal 2
  * @increment 0.01
- * @group LAMA
+ * @group Lama
  */
 PARAM_DEFINE_FLOAT(APPR_EN_DELAY, 2.0f);
 

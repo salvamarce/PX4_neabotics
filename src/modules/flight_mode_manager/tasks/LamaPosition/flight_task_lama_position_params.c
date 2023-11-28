@@ -32,14 +32,3 @@ PARAM_DEFINE_FLOAT(APPR_MAX_VEL, 0.6f);
  */
 PARAM_DEFINE_FLOAT(TOF_MAX_DIST, 1.8f);
 
-/**
- * Offset between the tof sensors and the contact surface of the drone.
- *
- * This is the distance that the tof sensors measure when the drone is
- * in contact.
- *
- * @unit m
- * @decimal 3
- * @group Lama
- */
-PARAM_DEFINE_FLOAT(TOF_D_OFFSET, 0.07f);

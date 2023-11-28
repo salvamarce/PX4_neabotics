@@ -115,7 +115,6 @@ private:
 		(ParamFloat<px4::params::LAMA_FORCE_SP>) 		_param_interaction_push_force,
 		(ParamFloat<px4::params::LAMA_FORCE_EPS>) 		_param_interaction_force_eps,
 		(ParamFloat<px4::params::TOF_MAX_DIST>) 		_param_tof_max_dist,
-		(ParamFloat<px4::params::TOF_D_OFFSET>) 		_param_tof_d_offset,
 		(ParamBool<px4::params::APPR_SEND_POS_SP>)		_param_approach_send_pos_sp,
 		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>) 	_param_concrete_tool_y_dist,
 		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) 	_param_concrete_tool_z_dist
