@@ -215,12 +215,12 @@ int MbedI2C::collect(){
 
 	// Tof sensors
 	bool tofOk = true;
-	for(int i=0; i<4; ++i){
+	/*for(int i=0; i<4; ++i){
 		if(sensorData.distances[i] < _param_tof_min_dist.get() || sensorData.distances[i] > _param_tof_max_dist.get()){
 			tofOk = false;
 			break;
 		}
-	}
+	}*/
 
 	// Check if timestamp_tof must be updated even if !tofOk, or not
 	if(sensorData.newTofReading || _first){
@@ -229,7 +229,7 @@ int MbedI2C::collect(){
 	}
 	if(tofOk)
 		for(int i=0; i<4; ++i)
-			tooldata_msg.distance[i] = 0.001f * sensorData.distances[i];		// from [m] to [mm]
+			tooldata_msg.distance[i] = 0.001f * sensorData.distances[i];		// from [mm] to [m]
 
 
 	tooldata_pub.publish(tooldata_msg);
