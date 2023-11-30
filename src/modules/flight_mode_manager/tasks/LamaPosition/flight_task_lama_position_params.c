@@ -27,8 +27,18 @@ PARAM_DEFINE_FLOAT(APPR_MAX_VEL, 0.6f);
  * value is considered not valid.
  *
  * @unit m
- * @decimal 2
+ * @decimal 3
  * @group Lama
  */
 PARAM_DEFINE_FLOAT(TOF_MAX_DIST, 1.8f);
 
+/**
+ * Minimum distance that can be read by tof sensors.
+ *
+ * Any measurement that is less than this value is considered not valid.
+ *
+ * @unit m
+ * @decimal 3
+ * @group Lama
+ */
+PARAM_DEFINE_FLOAT(TOF_MIN_DIST, 0.01f);

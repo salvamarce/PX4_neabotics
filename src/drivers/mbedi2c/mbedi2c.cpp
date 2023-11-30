@@ -82,8 +82,8 @@ private:
 	State _state{State::Configuring};
 	int _consecutive_errors{0};
 
-    uORB::Publication<concrete_tool_data_s> tooldata_pub{ORB_ID(concrete_tool_data)};
-    concrete_tool_data_s tooldata_msg;
+    	uORB::Publication<concrete_tool_data_s> tooldata_pub{ORB_ID(concrete_tool_data)};
+    	concrete_tool_data_s tooldata_msg;
 
 	uORB::Subscription _resetBias_sub {ORB_ID(ft_reset_bias_request)};
 	struct ft_reset_bias_request_s resetBias_request;
@@ -98,11 +98,13 @@ private:
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>)		_param_tool_y_dist,
-		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>)		_param_tool_z_dist
+		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>)		_param_tool_z_dist,
+		(ParamFloat<px4::params::TOF_MIN_DIST>)      		_param_tof_min_dist,
+		(ParamFloat<px4::params::TOF_MAX_DIST>)      		_param_tof_max_dist
 	)
 
 };
-   
+
 
 MbedI2C::MbedI2C(const I2CSPIDriverConfig &config) :
 	I2C(config), I2CSPIDriver(config), ModuleParams(nullptr){
@@ -123,13 +125,13 @@ int MbedI2C::init(){
 	int ret = PX4_ERROR;
 
 	_param_consecutive_errors = 3;
-	_conversion_interval = 2 * 1000; // 500hz -> 2ms -> 2000us
+	_conversion_interval = 5 * 1000; // 500hz -> 2ms -> 2000us
 
 	ret = I2C::init();
 
 	if (ret == PX4_OK)
 		start();
-	
+
 	return ret;
 }
 
@@ -142,23 +144,23 @@ int MbedI2C::readRegister(Register reg, uint8_t *data, int len){
 int MbedI2C::probe(){
 	PX4_INFO("Looking for mbed nucleo board...");
 
-    // Read the product name (expected 'mbed')
-    char product_name[5];
-    readRegister(Register::ProductName, (uint8_t*)product_name, 4);
-    product_name[sizeof(product_name) - 1] = '\0';
-	int nameCheck = strncmp((const char *)product_name, "mbed", sizeof(product_name)-1);
+    // Read the product name (expected 'm')
+    uint8_t product_name;
+    readRegister(Register::ProductName, (uint8_t*)&product_name, 1);
 
-    if (nameCheck == 0){
-		PX4_INFO("connected nucleo with name: %s", product_name);
-        return 0;
-	}
+    if (product_name == 'm'){
+		PX4_INFO("Connected with nucleo");
+		return 0;
+    }else
+	PX4_ERR("Probe failed - cannot find mbed nucleo board. Received: %c", product_name);
+
     return -1;
 }
 
 
-int MbedI2C::configure(){	
+int MbedI2C::configure(){
 	// Get tool position
-    uint8_t toolPos = 0;
+    	uint8_t toolPos = 0;
 	int ret = readRegister(Register::ToolPosition, &toolPos, 1);
 	if(PX4_OK != ret){
 		perf_count(_comms_errors);
@@ -168,21 +170,25 @@ int MbedI2C::configure(){
 	PX4_INFO("Tool position: %d", toolPos);
 
 	tooldata_msg.tool_pos = toolPos;
-	tooldata_pub.publish(tooldata_msg);
+	//tooldata_pub.publish(tooldata_msg);
 
 	_first = true;
 
 	// Start measurements
 	const uint8_t cmd = (uint8_t)Register::ReadSensors;
+	//uint8_t x;
+	//readRegister(Register::ReadSensors, (uint8_t*)&x, 1);
 	ret = transfer(&cmd, 1, nullptr, 0);
-    return ret;
+	PX4_INFO("Requested sensor data, ret: %d", ret);
+	//PX4_INFO("x = %d", x);
+    	return ret;
 	//return 0;
 }
 
 int MbedI2C::collect(){
     /* read from the sensor */
     const hrt_abstime timestamp_sample = hrt_absolute_time();
-    
+
  	// retrieve data
     SensorData sensorData;
 	int res = transfer(nullptr, 0, (uint8_t*)&sensorData, sizeof(sensorData));
@@ -191,23 +197,40 @@ int MbedI2C::collect(){
         return PX4_ERROR;
     }
 
+    //PX4_INFO("distances: %d\t%d\t%d\t%d", sensorData.distances[0], sensorData.distances[1], sensorData.distances[2], sensorData.distances[3]);
+
     // publish data
-    tooldata_msg.timestamp = timestamp_sample;
+     	tooldata_msg.timestamp = timestamp_sample;
 	tooldata_msg.timestamp_load = timestamp_sample;
-	if(sensorData.newTofReading || _first){
-		tooldata_msg.timestamp = timestamp_sample;
-		_first = false;
-	}
 
+	// Load cells
 	tooldata_msg.force[0] = sensorData.fx * 0.001f * 9.81f;		// from [g] to [N]
-	tooldata_msg.force[1] = tooldata_msg.force[2] = 0;
-	tooldata_msg.torque[0] = 0;
+	tooldata_msg.force[1] = 0;
+	tooldata_msg.force[2] = 0;
 
+	tooldata_msg.torque[0] = 0;
 	tooldata_msg.torque[1] = sensorData.ty * 0.001f * 9.81f * 0.5f * _param_tool_z_dist.get();	// from [g] to [Nm]
 	tooldata_msg.torque[2] = sensorData.tz * 0.001f * 9.81f * 0.5f * _param_tool_y_dist.get();	// from [g] to [Nm]
-    
-	for(int i=0; i<4; ++i)
-		tooldata_msg.distance[i] = 0.001f * sensorData.distances[i];		// from [m] to [mm]
+
+
+	// Tof sensors
+	bool tofOk = true;
+	for(int i=0; i<4; ++i){
+		if(sensorData.distances[i] < _param_tof_min_dist.get() || sensorData.distances[i] > _param_tof_max_dist.get()){
+			tofOk = false;
+			break;
+		}
+	}
+
+	// Check if timestamp_tof must be updated even if !tofOk, or not
+	if(sensorData.newTofReading || _first){
+		tooldata_msg.timestamp_tof = timestamp_sample;
+		_first = false;
+	}
+	if(tofOk)
+		for(int i=0; i<4; ++i)
+			tooldata_msg.distance[i] = 0.001f * sensorData.distances[i];		// from [m] to [mm]
+
 
 	tooldata_pub.publish(tooldata_msg);
 
@@ -296,9 +319,10 @@ extern "C" __EXPORT int mbedi2c_main(int argc, char *argv[])
 	using ThisDriver = MbedI2C;
 	BusCLIArguments cli{true, false};
 	cli.default_i2c_frequency = 100000;
-	int32_t addr = 0;
-	param_get(param_find("MBEDI2C_SLV_ADDR"), &addr);
-	cli.i2c_address = (uint8_t)addr;
+	//int32_t addr = 0;
+	//param_get(param_find("MBEDI2C_SLV_ADDR"), &addr);
+	//cli.i2c_address = (uint8_t)addr;
+	cli.i2c_address = 0x25;
 
 	int ch;
 	while ((ch = cli.getOpt(argc, argv, "R:")) != EOF) {
