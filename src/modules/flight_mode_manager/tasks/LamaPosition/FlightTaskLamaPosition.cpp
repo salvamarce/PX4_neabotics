@@ -96,11 +96,11 @@ bool FlightTaskLamaPosition::update(){
 
 
 	// Debug data on mavlink
-	for(int i=0; i<4; ++i)
+	/*for(int i=0; i<4; ++i)
 		_log_tool_data.data[i] = _tool_data.distance[i];
 	_log_tool_data.data[4] = _tool_data.force[0];
 	_log_tool_data.data[5] = _tool_data.torque[1];
-	_log_tool_data.data[6] = _tool_data.torque[2];
+	_log_tool_data.data[6] = _tool_data.torque[2];*/
 
 
 	// State machine

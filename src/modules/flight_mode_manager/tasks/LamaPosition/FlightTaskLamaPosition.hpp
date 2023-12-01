@@ -97,8 +97,8 @@ private:
 	bool _pushing_setpoint_saved{true};
 	matrix::Vector3f _pushing_position_setpoint;
 
-	struct debug_array_s _log_tool_data;
-	uORB::Publication<debug_array_s> _log_tool_data_pub{ORB_ID(debug_array)};
+	//struct debug_array_s _log_tool_data;
+	//uORB::Publication<debug_array_s> _log_tool_data_pub{ORB_ID(debug_array)};
 
 
 	enum class LamaState : uint8_t{

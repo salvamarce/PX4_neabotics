@@ -27,6 +27,7 @@
 #include <uORB/SubscriptionInterval.hpp>
 #include <uORB/topics/ft_reset_bias_request.h>
 #include <uORB/topics/concrete_tool_data.h>
+#include <uORB/topics/debug_vect.h>
 
 
 using namespace time_literals;
@@ -87,6 +88,8 @@ private:
 
 	uORB::Subscription _resetBias_sub {ORB_ID(ft_reset_bias_request)};
 	struct ft_reset_bias_request_s resetBias_request;
+
+	uORB::Publication<debug_vect_s> _log_tool_data_pub{ORB_ID(debug_vect)};
 
 	int32_t _param_consecutive_errors;
 
@@ -233,6 +236,35 @@ int MbedI2C::collect(){
 
 
 	tooldata_pub.publish(tooldata_msg);
+
+
+	// Debug data on mavlink
+	struct debug_vect_s _log_tool_data;
+	_log_tool_data.x = 0;
+	_log_tool_data.y = 0;
+	_log_tool_data.z = 0;
+
+	for(int i=0; i<4; ++i)
+		_log_tool_data.x += tooldata_msg.distance[i];
+	_log_tool_data.x /= 4.0f;
+
+	float left_mean = 0.5f*(tooldata_msg.distance[concrete_tool_data_s::TOP_LEFT] +
+				tooldata_msg.distance[concrete_tool_data_s::BOTTOM_LEFT]);
+
+	float right_mean = 0.5f*(tooldata_msg.distance[concrete_tool_data_s::TOP_RIGHT] +
+				tooldata_msg.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+
+	float bottom_mean = 0.5f*(tooldata_msg.distance[concrete_tool_data_s::BOTTOM_LEFT] +
+				tooldata_msg.distance[concrete_tool_data_s::BOTTOM_RIGHT]);
+
+	float top_mean = 0.5f*(tooldata_msg.distance[concrete_tool_data_s::TOP_LEFT] +
+				tooldata_msg.distance[concrete_tool_data_s::TOP_RIGHT]);
+
+	// To do: saturazione su yaw e pitch lama sp (valore in rad/s)
+	_log_tool_data.y = atan2f(bottom_mean-top_mean, _param_tool_z_dist.get());
+	_log_tool_data.z = atan2f(left_mean-right_mean,_param_tool_y_dist.get());
+
+	_log_tool_data_pub.publish(_log_tool_data);
 
 	return PX4_OK;
 }
