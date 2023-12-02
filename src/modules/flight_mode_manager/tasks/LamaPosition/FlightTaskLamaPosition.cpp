@@ -41,11 +41,24 @@
 
 using namespace matrix;
 
+bool FlightTaskLamaPosition::_checkActivationConditions(){
+	return true;
+
+	// Require valid data from tofs
+	if(_concrete_tool_data_sub.advertised()){
+		concrete_tool_data_s data;
+		_concrete_tool_data_sub.update(&data);
+		if(hrt_absolute_time() - data.timestamp_tof > 100_ms)
+			return false;
+		return true;
+	}
+	return false;
+}
+
 bool FlightTaskLamaPosition::updateInitialize()
 {
 	bool ret = FlightTaskManualPosition::updateInitialize();
-	// require valid position / velocity in xy
-	return ret;
+	return ret && _checkActivationConditions();
 }
 
 bool FlightTaskLamaPosition::activate(const trajectory_setpoint_s &last_setpoint)
@@ -56,7 +69,7 @@ bool FlightTaskLamaPosition::activate(const trajectory_setpoint_s &last_setpoint
 	_idle_position_setpoint = _prev_position_setpoint;
 
 	bool ret = FlightTaskManualPosition::activate(last_setpoint);
-	return ret;
+	return ret && _checkActivationConditions();
 }
 
 bool FlightTaskLamaPosition::update(){

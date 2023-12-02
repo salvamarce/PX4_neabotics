@@ -65,6 +65,8 @@ private:
 	void _leavingMode();
 	void _handleStateTransitions();
 
+	bool _checkActivationConditions();
+
 
 private:
 	uORB::Subscription _concrete_tool_data_sub {ORB_ID(concrete_tool_data)};

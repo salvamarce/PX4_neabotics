@@ -19,6 +19,9 @@ uint32 mode_req_wind_and_flight_time_compliance # if set, mode cannot be entered
 uint32 mode_req_prevent_arming    # if set, cannot arm while in this mode
 uint32 mode_req_manual_control
 uint32 mode_req_other             # other requirements, not covered above (for external modes)
+# *** CUSTOM ***
+uint32 mode_req_tof		  # Required tof data
+# *** END-CUSTOM ***
 
 
 # Mode requirements
@@ -32,6 +35,9 @@ bool global_position_invalid          # Global position estimate invalid
 bool auto_mission_missing             # No mission available
 bool offboard_control_signal_lost     # Offboard signal lost
 bool home_position_invalid            # No home position available
+# *** CUSTOM ***
+bool tof_invalid		      # Tof data not available (concrete_tool_data)
+# *** END-CUSTOM ***
 
 # Control links
 bool manual_control_signal_lost       # Manual control (RC) signal lost
@@ -55,5 +61,3 @@ bool fd_critical_failure              # Critical failure (attitude/altitude limi
 bool fd_esc_arming_failure            # ESC failed to arm
 bool fd_imbalanced_prop               # Imbalanced propeller detected
 bool fd_motor_failure                 # Motor failure
-
-

@@ -1140,3 +1140,37 @@ PARAM_DEFINE_INT32(COM_ARMABLE, 1);
  * @group Commander
  */
 PARAM_DEFINE_FLOAT(COM_ARM_BAT_MIN, 0.f);
+
+
+// *** CUSTOM ***
+/**
+ * Time-out to wait when concrete tool data connection is lost before triggering offboard lost action.
+ *
+ * See COM_LAMA_FS_ACT to configure action.
+ *
+ * @group Lama
+ * @unit s
+ * @min 0
+ * @max 60
+ * @increment 0.01
+ */
+PARAM_DEFINE_FLOAT(COM_LAMA_LOSS_T, 1.0f);
+
+/**
+ * Set offboard loss failsafe mode
+ *
+ * The offboard loss failsafe will only be entered after a timeout,
+ * set by COM_LAMA_LOSS_T in seconds.
+ *
+ * @value  0 Position mode
+ * @value  1 Altitude mode
+ * @value  2 Manual
+ * @value  3 Return mode
+ * @value  4 Land mode
+ * @value  5 Hold mode
+ * @value  6 Terminate
+ * @value  7 Disarm
+ * @group Lama
+ */
+//PARAM_DEFINE_INT32(COM_LAMA_FS_ACT, 0);
+// *** END-CUSTOM ***

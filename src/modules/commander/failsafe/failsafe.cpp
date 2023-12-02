@@ -532,6 +532,13 @@ FailsafeBase::Action Failsafe::checkModeFallback(const failsafe_flags_s &status_
 {
 	Action action = Action::None;
 
+	// *** CUSTOM ***
+	if(status_flags.tof_invalid && (status_flags.mode_req_tof & (1u << user_intended_mode))) {
+		action = Action::FallbackPosCtrl;
+		user_intended_mode = vehicle_status_s::NAVIGATION_STATE_POSCTL;
+	}
+	// *** END-CUSTOM ***
+
 	// offboard signal
 	if (status_flags.offboard_control_signal_lost && (status_flags.mode_req_offboard_signal & (1u << user_intended_mode))) {
 		action = fromOffboardLossActParam(_param_com_obl_rc_act.get(), user_intended_mode);

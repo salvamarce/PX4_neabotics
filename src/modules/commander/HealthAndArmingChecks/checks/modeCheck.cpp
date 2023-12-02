@@ -173,6 +173,17 @@ void ModeChecks::checkAndReport(const Context &context, Report &reporter)
 		// Already reported
 		reporter.clearCanRunBits((NavModes)reporter.failsafeFlags().mode_req_wind_and_flight_time_compliance);
 	}
+
+	// *** CUSTOM ***
+	if (reporter.failsafeFlags().tof_invalid && reporter.failsafeFlags().mode_req_tof != 0) {
+		/* EVENT
+		 */
+		reporter.armingCheckFailure((NavModes)reporter.failsafeFlags().mode_req_tof, health_component_t::system,
+					    events::ID("check_tof_data"),
+					    events::Log::Error, "No valid tof data");
+		reporter.clearCanRunBits((NavModes)reporter.failsafeFlags().mode_req_tof);
+	}
+	// *** END-CUSTOM ***
 }
 
 void ModeChecks::checkArmingRequirement(const Context &context, Report &reporter)

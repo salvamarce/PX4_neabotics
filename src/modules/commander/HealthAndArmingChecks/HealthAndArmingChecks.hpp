@@ -69,7 +69,9 @@
 #include "checks/vtolCheck.hpp"
 #include "checks/offboardCheck.hpp"
 #include "checks/openDroneIDCheck.hpp"
-
+// *** CUSTOM ***
+#include "checks/tofCheck.hpp"
+// *** END-CUSTOM ***
 class HealthAndArmingChecks : public ModuleParams
 {
 public:
@@ -143,8 +145,11 @@ private:
 	RcAndDataLinkChecks _rc_and_data_link_checks;
 	VtolChecks _vtol_checks;
 	OffboardChecks _offboard_checks;
+	// *** CUSTOM ***
+	TofChecks _tof_checks;
+	// *** END-CUSTOM ***
 
-	HealthAndArmingCheckBase *_checks[31] = {
+	HealthAndArmingCheckBase *_checks[32] = {	// *** CUSTOM *** (original: 31)
 		&_accelerometer_checks,
 		&_airspeed_checks,
 		&_arm_permission_checks,
@@ -174,6 +179,9 @@ private:
 		&_flight_time_checks,
 		&_rc_and_data_link_checks,
 		&_vtol_checks,
+		// *** CUSTOM ***
+		&_tof_checks,
+		// *** END-CUSTOM ***
 	};
 };
 

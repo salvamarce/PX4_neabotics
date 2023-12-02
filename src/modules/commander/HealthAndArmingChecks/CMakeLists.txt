@@ -64,6 +64,9 @@ px4_add_library(health_and_arming_checks
 	checks/systemCheck.cpp
 	checks/vtolCheck.cpp
 	checks/windCheck.cpp
+	# *** CUSTOM ***
+	checks/tofCheck.cpp
+	# *** END-CUSTOM ***
 
 )
 add_dependencies(health_and_arming_checks mode_util)
