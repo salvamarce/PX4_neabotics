@@ -219,7 +219,7 @@ int MbedI2C::collect(){
 	// Tof sensors
 	bool tofOk = true;
 	for(int i=0; i<4; ++i){
-		if(sensorData.distances[i] < _param_tof_min_dist.get() || sensorData.distances[i] > _param_tof_max_dist.get()){
+		if(0.001f*sensorData.distances[i] < _param_tof_min_dist.get() || 0.001f*sensorData.distances[i] > _param_tof_max_dist.get()){
 			tofOk = false;
 			break;
 		}
