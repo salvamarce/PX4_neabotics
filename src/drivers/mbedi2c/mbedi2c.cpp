@@ -234,6 +234,9 @@ int MbedI2C::collect(){
 		for(int i=0; i<4; ++i)
 			tooldata_msg.distance[i] = 0.001f * sensorData.distances[i];		// from [mm] to [m]
 	}
+	else{
+		tooldata_msg.timestamp_tof = 0;
+	}
 
 
 	tooldata_pub.publish(tooldata_msg);
