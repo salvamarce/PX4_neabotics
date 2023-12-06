@@ -95,7 +95,7 @@ PARAM_DEFINE_FLOAT(MPC_VELD_LP, 5.0f);
  * @min 0.0
  * @max 20.0
  * @decimal 1
- * @group Multicopter Attitude Control
+ * @group Tilting Multicopter
 */
 PARAM_DEFINE_FLOAT(MC_DES_PITCH_MAX, 10.0f);
 
@@ -106,7 +106,7 @@ PARAM_DEFINE_FLOAT(MC_DES_PITCH_MAX, 10.0f);
  * @min -20.0
  * @max 0.0
  * @decimal 1
- * @group Multicopter Attitude Control
+ * @group Tilting Multicopter
 */
 PARAM_DEFINE_FLOAT(MC_DES_PITCH_MIN, -10.0f);
 
@@ -117,7 +117,7 @@ PARAM_DEFINE_FLOAT(MC_DES_PITCH_MIN, -10.0f);
  * @min 0.0
  * @max 20.0
  * @decimal 1
- * @group Multicopter Attitude Control
+ * @group Tilting Multicopter
 */
 PARAM_DEFINE_FLOAT(MC_DES_ROLL_MAX, 10.0f);
 
@@ -128,7 +128,7 @@ PARAM_DEFINE_FLOAT(MC_DES_ROLL_MAX, 10.0f);
  * @min -20.0
  * @max 0.0
  * @decimal 1
- * @group Multicopter Attitude Control
+ * @group Tilting Multicopter
 */
 PARAM_DEFINE_FLOAT(MC_DES_ROLL_MIN, -10.0f);
 

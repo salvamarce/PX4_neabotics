@@ -292,3 +292,20 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_K, 1.0f);
  * @group Multicopter Rate Control
  */
 PARAM_DEFINE_INT32(MC_BAT_SCALE_EN, 0);
+
+/*** CUSTOM ***/
+
+/**
+ * Max servo speed
+ *
+ * Maximum speed for the tilt servomotors for tilting multirotors
+ *
+ * @unit rad/s
+ * @min 0.0
+ * @max 3.14
+ * @decimal 3
+ * @increment 0.001
+ * @group Tilting Multicopter
+ */
+PARAM_DEFINE_FLOAT(TILT_MAX_SPEED, 0.436332f);
+

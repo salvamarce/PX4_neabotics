@@ -253,8 +253,24 @@ MulticopterRateControl::Run()
 				}
 			}
 
-			if (_tilting_servo_sub.update(&new_servo_sp)){
-				_old_servo_sp = new_servo_sp;
+			if (_tilting_servo_sub.updated()){
+
+				if(_tilting_servo_sub.copy(&new_servo_sp)){
+
+					PX4_WARN("new_sp: %3.3f \told: %3.3f \tvel: %3.3f", (double)new_servo_sp.angle[0],
+						 (double)_old_servo_sp.angle[0], (double)abs(new_servo_sp.angle[0]-_old_servo_sp.angle[0]));
+
+					if(abs(new_servo_sp.angle[0]-_old_servo_sp.angle[0]) <= _param_max_servo_speed.get()){
+						_old_servo_sp = new_servo_sp;
+						PX4_WARN("accetto");
+					}
+					else{
+						float elapsed_time = math::constrain(((hrt_absolute_time()  - _old_servo_sp.timestamp) * 1e-6f), 0.0002f, 0.02f);
+						int sign = (new_servo_sp.angle[0]-_old_servo_sp.angle[0]) / abs(new_servo_sp.angle[0]-_old_servo_sp.angle[0]);
+						_old_servo_sp.angle[0] += sign * _param_max_servo_speed.get() * elapsed_time;
+						PX4_WARN("saturo");
+					}
+				}
 			}
 
 			lama_state_s lama_state;
@@ -265,8 +281,17 @@ MulticopterRateControl::Run()
 				if(_servo_interaction_sub.updated()){
 					tilting_servo_sp_s interaction_servo;
 
-					if(_servo_interaction_sub.copy(&interaction_servo))
-						_old_servo_sp = interaction_servo;
+					if(_servo_interaction_sub.copy(&interaction_servo)){
+
+						if(abs(interaction_servo.angle[0]-_old_servo_sp.angle[0]) <= _param_max_servo_speed.get())
+							_old_servo_sp = interaction_servo;
+						else{
+							float elapsed_time = math::constrain(((hrt_absolute_time()  - _old_servo_sp.timestamp) * 1e-6f), 0.0002f, 0.02f);
+							int sign = (interaction_servo.angle[0]-_old_servo_sp.angle[0]) / abs(interaction_servo.angle[0]-_old_servo_sp.angle[0]);
+							_old_servo_sp.angle[0] += sign * _param_max_servo_speed.get() * elapsed_time;
+						}
+					}
+
 				}
 
 				if(_rates_interaction_sub.updated()){
