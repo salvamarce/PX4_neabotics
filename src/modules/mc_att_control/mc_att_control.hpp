@@ -173,6 +173,8 @@ private:
 	bool _new_lama_sp = false;
 	float _des_q_sp[4]; //To do: dare un nome più esplicativo
 
+	lama_state_s lama_state;
+
 	/*** END-CUSTOM ***/
 
 	DEFINE_PARAMETERS(

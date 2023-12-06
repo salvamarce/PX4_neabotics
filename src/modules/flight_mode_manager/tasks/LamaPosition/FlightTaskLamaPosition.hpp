@@ -51,7 +51,7 @@
 class FlightTaskLamaPosition : public FlightTaskManualPosition
 {
 public:
-	FlightTaskLamaPosition() = default;
+	FlightTaskLamaPosition();
 	virtual ~FlightTaskLamaPosition() = default;
 	bool activate(const trajectory_setpoint_s &last_setpoint) override;
 	bool updateInitialize() override;

@@ -65,6 +65,11 @@ MulticopterAttitudeControl::MulticopterAttitudeControl(bool vtol) :
 	_manual_throttle_minimum.setSlewRate(0.05f);
 	// Rate of change 50% per second -> 2 seconds to ramp to 100%
 	_manual_throttle_maximum.setSlewRate(0.5f);
+
+
+	lama_state.engage_interaction = false;
+	lama_state.engage_approach = false;
+	lama_state.timestamp = 0;
 }
 
 MulticopterAttitudeControl::~MulticopterAttitudeControl()
@@ -423,7 +428,7 @@ MulticopterAttitudeControl::Run()
 				*/
 				if(_vehicle_control_mode.flag_control_lama_enabled){
 
-					lama_state_s lama_state;
+					//lama_state_s lama_state;
 					_lama_state_sub.update(&lama_state);
 
 					//To do: inserire soglia sulle lama sp

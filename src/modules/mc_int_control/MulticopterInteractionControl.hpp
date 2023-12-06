@@ -121,6 +121,8 @@ private:
 	matrix::Vector3f _old_f_sp;
 	matrix::Matrix3f _R_b;
 
+	lama_state_s lama_state;
+
 	// Parameters
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::LAMA_FORCE_SP>)   	_param_lama_force_sp,   		/** Force setpoint for interaction */

@@ -40,6 +40,10 @@ MulticopterInteractionControl::MulticopterInteractionControl() :
 	WorkItem(MODULE_NAME, px4::wq_configurations::nav_and_controllers)
 {
 	parameters_updated();
+
+	lama_state.engage_interaction = false;
+	lama_state.engage_approach = false;
+	lama_state.timestamp = 0;
 }
 
 MulticopterInteractionControl::~MulticopterInteractionControl()
@@ -128,7 +132,7 @@ void MulticopterInteractionControl::Run()
 
 			concrete_tool_data_s concrete_tool_data;
 
-			lama_state_s lama_state;
+			//lama_state_s lama_state;
 			_lama_state_sub.update(&lama_state);
 
 			lama_state.engage_interaction = false;

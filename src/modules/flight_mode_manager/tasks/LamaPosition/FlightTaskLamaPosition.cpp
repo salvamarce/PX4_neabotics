@@ -41,6 +41,13 @@
 
 using namespace matrix;
 
+FlightTaskLamaPosition::FlightTaskLamaPosition(){
+	_lama_state.engage_interaction = false;
+	_lama_state.engage_approach = false;
+	_lama_state.timestamp = 0;
+	_tool_data.timestamp = 0;
+}
+
 bool FlightTaskLamaPosition::_checkActivationConditions(){
 	return true;
 
@@ -158,8 +165,8 @@ void FlightTaskLamaPosition::_readSensors(){
 			_tofMeasureOk = false;
 			for(int i=0; i<4; ++i){
 				if(_tool_data.distance[i] >= _param_tof_max_dist.get() || _tool_data.distance[i] <= 0.05f){
-					//PX4_WARN("tof not ok");
-					return ;
+					//PX4_WARN("tof %d not ok", i);
+					return;
 				}
 			}
 			_tofMeasureOk = true;
@@ -277,11 +284,13 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 	switch(_currentState){
 
 		case LamaState::IDLE:
-			// Switch to approach if angle error ok and pitch sticks up
+						// Switch to approach if angle error ok and pitch sticks up
 			if(_tofMeasureOk && _lama_state.engage_approach && _sticks.getPitch() > 0.75f){
 				PX4_WARN("Switch into approach");
 				_currentState = LamaState::APPROACH;
 			}
+				//PX4_WARN("tofMeasureOk: %d\tengage_approach: %d\tstick_pitch: %f", _tofMeasureOk, _lama_state.engage_approach, (double)_sticks.getPitch());
+
 			break;
 
 
@@ -299,6 +308,7 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 			}
 			else if(wasNearWall && _avgDist > 0.25f){	// wasNearWall simulation-only
 				PX4_WARN("MOVING! BACK TO IDLE");
+				wasNearWall = false;
 				_currentState = LamaState::IDLE;
 			}
 
