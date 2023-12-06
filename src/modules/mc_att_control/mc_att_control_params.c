@@ -229,6 +229,7 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_PITCH, 0.026f);
 /**
  * Delay to enable approach after positioning
  *
+ * @unit s
  * @min 0.0
  * @max 10.0
  * @decimal 2
@@ -236,5 +237,25 @@ PARAM_DEFINE_FLOAT(LAMA_MIN_PITCH, 0.026f);
  * @group Lama
  */
 PARAM_DEFINE_FLOAT(APPR_EN_DELAY, 2.0f);
+
+/**
+ * Proportional gain for yaw velocity before approach
+ *
+ * @min 0.0
+ * @max 1.0
+ * @decimal 2
+ * @group Lama
+ */
+PARAM_DEFINE_FLOAT(LAMA_APPR_YAW_K, 0.5f);
+
+/**
+ * Proportional gain for pitch velocity before approach
+ *
+ * @min 0.0
+ * @max 1.0
+ * @decimal 2
+ * @group Lama
+ */
+PARAM_DEFINE_FLOAT(LAMA_APPR_PCH_K, 0.5f);
 
 // *** END-CUSTOM ***

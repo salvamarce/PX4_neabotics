@@ -205,11 +205,13 @@ private:
 		(ParamInt<px4::params::CA_TILTING_TYPE>)     _param_tilting_type,	/**< 0: H-tilt, 1: omnidirectional */
 		(ParamInt<px4::params::CA_AIRFRAME>)	     _param_airframe,		/**< 11: tilting multirotor */
 		(ParamFloat<px4::params::MC_MAX_FXY>)        _param_f_max,		/**< maximum horizontal force for omni drones*/
-		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>) _param_concrete_tool_y_dist,
-		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) _param_concrete_tool_z_dist,
-		(ParamFloat<px4::params::LAMA_MIN_YAW>)     _param_min_lama_yaw,
-		(ParamFloat<px4::params::LAMA_MIN_PITCH>)   _param_min_lama_pitch,
-		(ParamFloat<px4::params::APPR_EN_DELAY>)    _param_approach_enable_delay
+		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>)  _param_concrete_tool_y_dist,
+		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>)  _param_concrete_tool_z_dist,
+		(ParamFloat<px4::params::LAMA_MIN_YAW>)      _param_min_lama_yaw,
+		(ParamFloat<px4::params::LAMA_MIN_PITCH>)    _param_min_lama_pitch,
+		(ParamFloat<px4::params::APPR_EN_DELAY>)     _param_approach_enable_delay,
+		(ParamFloat<px4::params::LAMA_APPR_YAW_K>)        _param_yaw_k,
+		(ParamFloat<px4::params::LAMA_APPR_PCH_K>)      _param_pitch_k
 		/*** END-CUSTOM ***/
 
 	)

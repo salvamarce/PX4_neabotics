@@ -387,8 +387,8 @@ MulticopterAttitudeControl::Run()
 
 				// To do: saturazione su yaw e pitch lama sp (valore in rad/s)
 				float elapsed_time = math::constrain(((hrt_absolute_time()  - _last_concrete_data_time) * 1e-6f), 0.0002f, 0.02f);
-				_yaw_lama_sp = atan2f(left_mean-right_mean,_concrete_tool_y_dist) * elapsed_time;
-				_pitch_lama_sp = atan2f(bottom_mean-top_mean, _concrete_tool_z_dist) * elapsed_time;
+				_yaw_lama_sp = _param_yaw_k.get() * atan2f(left_mean-right_mean,_concrete_tool_y_dist) * elapsed_time;
+				_pitch_lama_sp = _param_pitch_k.get() * atan2f(bottom_mean-top_mean, _concrete_tool_z_dist) * elapsed_time;
 
 				_last_concrete_data_time = tool_data.timestamp_tof;
 
