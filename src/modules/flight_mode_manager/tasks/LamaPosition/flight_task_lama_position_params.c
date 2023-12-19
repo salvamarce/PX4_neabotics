@@ -28,7 +28,7 @@ PARAM_DEFINE_FLOAT(APPR_MAX_VEL, 0.6f);
  * @decimal 3
  * @group Lama
  */
-PARAM_DEFINE_FLOAT(TOF_MIN_DIST, 0.01f);
+PARAM_DEFINE_FLOAT(TOF_MIN_DIST, 0.1f);
 
 /**
  * Maximum distance that can be read by tof sensors.

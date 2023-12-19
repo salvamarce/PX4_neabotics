@@ -37,7 +37,7 @@
 
 MulticopterInteractionControl::MulticopterInteractionControl() :
 	ModuleParams(nullptr),
-	WorkItem(MODULE_NAME, px4::wq_configurations::nav_and_controllers)
+	ScheduledWorkItem(MODULE_NAME, px4::wq_configurations::nav_and_controllers)
 {
 	parameters_updated();
 
@@ -93,6 +93,8 @@ void MulticopterInteractionControl::Run()
 		return;
 	}
 
+	ScheduleDelayed(100_ms);
+
 	perf_begin(_loop_perf);
 
 	// Check if parameters have changed
@@ -138,7 +140,7 @@ void MulticopterInteractionControl::Run()
 			lama_state.engage_interaction = false;
 
 			if(_concrete_tool_sub.copy(&concrete_tool_data)
-			   &&concrete_tool_data.timestamp_load > _last_concrete_tool_data_time){
+			   && concrete_tool_data.timestamp_load > _last_concrete_tool_data_time){
 
 				_last_concrete_tool_data_time = hrt_absolute_time();
 

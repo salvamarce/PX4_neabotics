@@ -41,6 +41,7 @@
 #include <px4_platform_common/module_params.h>
 #include <px4_platform_common/posix.h>
 #include <px4_platform_common/px4_work_queue/WorkItem.hpp>
+#include <px4_platform_common/px4_work_queue/ScheduledWorkItem.hpp>
 #include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/SubscriptionCallback.hpp>
@@ -57,7 +58,7 @@ static constexpr float THRUST_Z_MAX = 2.0f*2.5f*CONSTANTS_ONE_G;
 
 using namespace time_literals;
 
-class MulticopterInteractionControl : public ModuleBase<MulticopterInteractionControl>, public ModuleParams, public px4::WorkItem
+class MulticopterInteractionControl : public ModuleBase<MulticopterInteractionControl>, public ModuleParams, public px4::ScheduledWorkItem
 {
 public:
 	MulticopterInteractionControl();

@@ -164,7 +164,7 @@ void FlightTaskLamaPosition::_readSensors(){
 			// Check if tof measure is reliable
 			_tofMeasureOk = false;
 			for(int i=0; i<4; ++i){
-				if(_tool_data.distance[i] >= _param_tof_max_dist.get() || _tool_data.distance[i] <= 0.05f){
+				if(_tool_data.distance[i] >= _param_tof_max_dist.get() || _tool_data.distance[i] <= _param_tof_min_dist.get()){
 					//PX4_WARN("tof %d not ok", i);
 					return;
 				}
