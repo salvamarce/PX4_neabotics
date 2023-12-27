@@ -42,4 +42,5 @@ fi
 
 # *** CUSTOM ***
 mavlink stream -r 10 -s LAMA_STATE -u $udp_gcs_port_local
+mavlink stream -r 25 -s CONCRETE_TOOL_DATA -u $udp_gcs_port_local
 # *** END_CUSTOM ***

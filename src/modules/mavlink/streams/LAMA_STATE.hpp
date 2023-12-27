@@ -34,6 +34,8 @@ private:
 			mavlink_lama_state_t msg{};
 			msg.timestamp = lama.timestamp;
 			msg.state = lama.state;
+			msg.engage_approach = lama.engage_approach;
+			msg.engage_interaction = lama.engage_interaction;
 
 			mavlink_msg_lama_state_send_struct(_mavlink->get_channel(), &msg);
 

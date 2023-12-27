@@ -150,6 +150,7 @@
 
 /**** CUSTOM ****/
 #include "streams/LAMA_STATE.hpp"
+#include "streams/CONCRETE_TOOL_DATA.hpp"
 /**** END-CUSTOM ****/
 
 // ensure PX4 rotation enum and MAV_SENSOR_ROTATION align
@@ -506,6 +507,9 @@ static const StreamListItem streams_list[] = {
 #if defined(LAMA_STATE_HPP)
 	create_stream_list_item<MavlinkStreamLamaState>(), // *** CUSTOM ***
 #endif // LAMA_STATE_HPP
+#if defined(CONCRETE_TOOL_DATA_HPP)
+	create_stream_list_item<MavlinkStreamConcreteToolData>(),
+#endif // CONCRETE_TOOL_DATA_HPP
 /**** END-CUSTOM ****/
 };
 
