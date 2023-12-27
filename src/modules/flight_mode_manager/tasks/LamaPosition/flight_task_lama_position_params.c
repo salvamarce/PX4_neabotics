@@ -43,4 +43,13 @@ PARAM_DEFINE_FLOAT(TOF_MIN_DIST, 0.1f);
  */
 PARAM_DEFINE_FLOAT(TOF_MAX_DIST, 1.8f);
 
-
+/**
+ * Maximum distance from which the approach can be done.
+ *
+ * This must be lower than TOF_MAX_DIST.
+ *
+ * @unit m
+ * @decimal 3
+ * @group Lama
+ */
+PARAM_DEFINE_FLOAT(MAX_APPR_DIST, 1.2f);

@@ -114,15 +114,6 @@ bool FlightTaskLamaPosition::update(){
 	// Auto landing gear
 	// ...
 
-
-	// Debug data on mavlink
-	/*for(int i=0; i<4; ++i)
-		_log_tool_data.data[i] = _tool_data.distance[i];
-	_log_tool_data.data[4] = _tool_data.force[0];
-	_log_tool_data.data[5] = _tool_data.torque[1];
-	_log_tool_data.data[6] = _tool_data.torque[2];*/
-
-
 	// State machine
 	switch(_currentState){
 		case LamaState::IDLE:
@@ -203,7 +194,7 @@ void FlightTaskLamaPosition::_idleMode(){
 }
 
 void FlightTaskLamaPosition::_approachMode(){
-	// Used to ignore sticks command in all cases
+	// Ignore sticks command in all cases
 	_position_setpoint = _prev_position_setpoint;
 	_velocity_setpoint.setZero();
 
@@ -234,7 +225,7 @@ void FlightTaskLamaPosition::_approachMode(){
 		float d_z = _avgDist * sinf(_vehicle_attitude_setpoint.pitch_body);
 
 		// Gains
-		float k = _param_approach_max_vel.get() / _param_tof_max_dist.get();
+		float k = _param_approach_max_vel.get() / _param_approach_max_dist.get();
 
 		// Feedforward velocity setpoint
 		Vector2f vel_sp_xy (k * d_x, 0.0f);
@@ -243,12 +234,6 @@ void FlightTaskLamaPosition::_approachMode(){
 		_velocity_setpoint(2) = k * d_z;
 
 		// Position setpoints
-		Vector2f pos_sp_xy;
-		pos_sp_xy(0) = k * d_x * _deltatime;
-		pos_sp_xy(1) = 0.0f;		// y constant
-		Sticks::rotateIntoHeadingFrameXY(pos_sp_xy, _yaw, NAN);
-
-
 		if(_param_approach_send_pos_sp.get()){
 			_position_setpoint(0) = _prev_position_setpoint(0) + _velocity_setpoint(0) * _deltatime;
 			_position_setpoint(1) = _prev_position_setpoint(1) + _velocity_setpoint(1) * _deltatime;
@@ -275,7 +260,38 @@ void FlightTaskLamaPosition::_interactionMode(){
 }
 
 void FlightTaskLamaPosition::_leavingMode(){
+	// Ignore sticks command in all cases
+	_position_setpoint = _prev_position_setpoint;
+	_velocity_setpoint.setZero();
 
+	// Rotate d wrt body pitch
+	float d_x = _avgDist * cosf(_vehicle_attitude_setpoint.pitch_body);
+	float d_z = _avgDist * sinf(_vehicle_attitude_setpoint.pitch_body);
+
+	// Gains
+	float dmax = _param_approach_max_dist.get();
+	float k = 2.0f * _param_approach_max_vel.get() / dmax;
+
+	// Triangular profile
+	float vd_x = k * d_x;
+	if(_avgDist > dmax / 2.0f)
+		vd_x = k * dmax - vd_x;
+
+	// Feedforward velocity setpoint
+	Vector2f vel_sp_xy (- vd_x, 0.0f);
+	Sticks::rotateIntoHeadingFrameXY(vel_sp_xy, _yaw, NAN);
+	_velocity_setpoint.xy() = vel_sp_xy;
+	_velocity_setpoint(2) = k * d_z;
+
+	// Position setpoints
+	if(_param_approach_send_pos_sp.get()){
+		_position_setpoint(0) = _prev_position_setpoint(0) + _velocity_setpoint(0) * _deltatime;
+		_position_setpoint(1) = _prev_position_setpoint(1) + _velocity_setpoint(1) * _deltatime;
+	}else{
+		_position_setpoint(0) = NAN;
+		_position_setpoint(1) = NAN;
+	}
+	_position_setpoint(2) = _prev_position_setpoint(2) - _velocity_setpoint(2) * _deltatime;
 }
 
 
@@ -284,12 +300,12 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 	switch(_currentState){
 
 		case LamaState::IDLE:
-						// Switch to approach if angle error ok and pitch sticks up
-			if(_tofMeasureOk && _lama_state.engage_approach && _sticks.getPitch() > 0.75f){
+			// Switch to approach if angle error ok and pitch sticks up
+			if(_tofMeasureOk && _avgDist <= _param_approach_max_dist.get() && _lama_state.engage_approach && _sticks.getPitch() > 0.75f){
 				PX4_WARN("Switch into approach");
 				_currentState = LamaState::APPROACH;
 			}
-				//PX4_WARN("tofMeasureOk: %d\tengage_approach: %d\tstick_pitch: %f", _tofMeasureOk, _lama_state.engage_approach, (double)_sticks.getPitch());
+			//PX4_WARN("tofMeasureOk: %d\tengage_approach: %d\tstick_pitch: %f", _tofMeasureOk, _lama_state.engage_approach, (double)_sticks.getPitch());
 
 			break;
 
@@ -325,6 +341,10 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 
 
 		case LamaState::LEAVING:
+			if(!_tofMeasureOk || _avgDist > _param_approach_max_dist.get()){
+				PX4_WARN("Switch into idle");
+				_currentState = LamaState::IDLE;
+			}
 			break;
 
 	}
