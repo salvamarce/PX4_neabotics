@@ -148,6 +148,11 @@
 # include "streams/UTM_GLOBAL_POSITION.hpp"
 #endif // !CONSTRAINED_FLASH
 
+/**** CUSTOM ****/
+#include "streams/LAMA_STATE.hpp"
+#include "streams/CONCRETE_TOOL_DATA.hpp"
+/**** END-CUSTOM ****/
+
 // ensure PX4 rotation enum and MAV_SENSOR_ROTATION align
 static_assert(MAV_SENSOR_ROTATION_NONE == static_cast<MAV_SENSOR_ORIENTATION>(ROTATION_NONE),
 	      "Roll: 0, Pitch: 0, Yaw: 0");
@@ -496,8 +501,16 @@ static const StreamListItem streams_list[] = {
 	create_stream_list_item<MavlinkStreamUavionixADSBOutCfg>(),
 #endif // UAVIONIX_ADSB_OUT_CFG_HPP
 #if defined(UAVIONIX_ADSB_OUT_DYNAMIC_HPP)
-	create_stream_list_item<MavlinkStreamUavionixADSBOutDynamic>()
+	create_stream_list_item<MavlinkStreamUavionixADSBOutDynamic>(), // *** CUSTOM ***
 #endif // UAVIONIX_ADSB_OUT_DYNAMIC_HPP
+/**** CUSTOM ****/
+#if defined(LAMA_STATE_HPP)
+	create_stream_list_item<MavlinkStreamLamaState>(), // *** CUSTOM ***
+#endif // LAMA_STATE_HPP
+#if defined(CONCRETE_TOOL_DATA_HPP)
+	create_stream_list_item<MavlinkStreamConcreteToolData>(),
+#endif // CONCRETE_TOOL_DATA_HPP
+/**** END-CUSTOM ****/
 };
 
 const char *get_stream_name(const uint16_t msg_id)
