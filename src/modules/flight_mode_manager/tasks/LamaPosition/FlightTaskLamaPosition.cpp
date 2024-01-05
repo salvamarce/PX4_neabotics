@@ -188,6 +188,14 @@ void FlightTaskLamaPosition::_readSensors(){
 }
 
 
+void FlightTaskLamaPosition::_resetFtSensorBias(){
+	struct ft_reset_bias_request_s resetBias;
+	resetBias.timestamp = hrt_absolute_time();
+	resetBias.reset_bias = true;
+	_reset_pub.publish(resetBias);
+}
+
+
 void FlightTaskLamaPosition::_idleMode(){
 	_position_setpoint = _idle_position_setpoint;
 	_velocity_setpoint.setZero();
@@ -304,23 +312,22 @@ void FlightTaskLamaPosition::_handleStateTransitions(){
 			if(_tofMeasureOk && _avgDist <= _param_approach_max_dist.get() && _lama_state.engage_approach && _sticks.getPitch() > 0.75f){
 				PX4_WARN("Switch into approach");
 				_currentState = LamaState::APPROACH;
+				PX4_INFO("Resetting ft sensor bias");
+				_resetFtSensorBias();
 			}
-			//PX4_WARN("tofMeasureOk: %d\tengage_approach: %d\tstick_pitch: %f", _tofMeasureOk, _lama_state.engage_approach, (double)_sticks.getPitch());
-
 			break;
 
 
 		case LamaState::APPROACH:
-			// switch back to idle if active_approach is false
-			if(!_tofMeasureOk && !wasNearWall){
-				_currentState = LamaState::IDLE;
-				_idle_position_setpoint = _position;
-				PX4_WARN("Switch into idle");
-			}
-			else if (_lama_state.engage_interaction){
+			if (_lama_state.engage_interaction){
 				PX4_WARN("Switch into interaction");
 				_interaction_position_setpoint = _position;
 				_currentState = LamaState::INTERACTION;
+			}
+			else if(!_tofMeasureOk && !wasNearWall){
+				_currentState = LamaState::IDLE;
+				_idle_position_setpoint = _position;
+				PX4_WARN("Switch into idle");
 			}
 			else if(wasNearWall && _avgDist > 0.25f){	// wasNearWall simulation-only
 				PX4_WARN("MOVING! BACK TO IDLE");

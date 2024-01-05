@@ -41,12 +41,16 @@
 #pragma once
 
 #include "FlightTaskManualPosition.hpp"
+
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/concrete_tool_data.h>
 #include <uORB/topics/approaching_activation.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/lama_state.h>
 #include <uORB/topics/debug_array.h>
+
+#include <uORB/Publication.hpp>
+#include <uORB/topics/ft_reset_bias_request.h>
 
 class FlightTaskLamaPosition : public FlightTaskManualPosition
 {
@@ -59,6 +63,8 @@ public:
 
 private:
 	void _readSensors();
+	void _resetFtSensorBias();
+
 	void _idleMode();
 	void _approachMode();
 	void _interactionMode();
@@ -81,6 +87,8 @@ private:
 	uORB::Subscription _state_sub {ORB_ID(lama_state)};
 	uORB::Publication<lama_state_s> _state_pub {ORB_ID(lama_state)};
 	lama_state_s _lama_state;
+
+	uORB::Publication<ft_reset_bias_request_s> _reset_pub{ORB_ID(ft_reset_bias_request)};
 
 	trajectory_setpoint_s _first_position_setpoint;
 	matrix::Vector3f _prev_position_setpoint;
@@ -113,13 +121,13 @@ private:
 
 
 	DEFINE_PARAMETERS(
-		(ParamFloat<px4::params::APPR_MAX_VEL>)			_param_approach_max_vel,
-		(ParamFloat<px4::params::LAMA_FORCE_SP>) 		_param_interaction_push_force,
-		(ParamFloat<px4::params::LAMA_FORCE_EPS>) 		_param_interaction_force_eps,
-		(ParamFloat<px4::params::TOF_MAX_DIST>) 		_param_tof_max_dist,
-		(ParamFloat<px4::params::TOF_MIN_DIST>) 		_param_tof_min_dist,
-		(ParamFloat<px4::params::MAX_APPR_DIST>) 		_param_approach_max_dist,
-		(ParamBool<px4::params::APPR_SEND_POS_SP>)		_param_approach_send_pos_sp,
+		(ParamFloat<px4::params::APPR_MAX_VEL>)		_param_approach_max_vel,
+		(ParamFloat<px4::params::LAMA_FORCE_SP>) 	_param_interaction_push_force,
+		(ParamFloat<px4::params::LAMA_FORCE_EPS>) 	_param_interaction_force_eps,
+		(ParamFloat<px4::params::TOF_MAX_DIST>) 	_param_tof_max_dist,
+		(ParamFloat<px4::params::TOF_MIN_DIST>) 	_param_tof_min_dist,
+		(ParamFloat<px4::params::APPR_MAX_DIST>) 	_param_approach_max_dist,
+		(ParamBool<px4::params::APPR_SEND_POS_SP>)	_param_approach_send_pos_sp,
 		(ParamFloat<px4::params::CONC_TOOL_Y_DIST>) 	_param_concrete_tool_y_dist,
 		(ParamFloat<px4::params::CONC_TOOL_Z_DIST>) 	_param_concrete_tool_z_dist
 	)
